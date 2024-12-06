@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
+import 'package:sound_mile/pages/player/music_player.dart';
 
 import '../../controllers/home_conroller.dart';
 import '../../util/color_category.dart';
@@ -171,13 +172,7 @@ class _TabHomeState extends State<TabHome> {
                 fontWeight: FontWeight.w700),
             GestureDetector(
               onTap: () {
-                // Constant.sendToNext(
-                //   context,
-                //   Routes.latestingMusicListRoute,
-                //   arguments: {
-                //     'songs': songController.latestSongs,
-                //   },
-                // );
+            
               },
               child: getCustomFont("View All", 12.sp, accentColor, 1,
                   fontWeight: FontWeight.w700),
@@ -223,14 +218,9 @@ class _TabHomeState extends State<TabHome> {
                   SongModel song = snapshot.data![index];
                   return GestureDetector(
                     onTap: () {
-                      // Constant.sendToNext(
-                      //   context,
-                      //   Routes.musicDetailRoute,
-                      //   arguments: {
-                      //     'songs': songController.latestSongs,
-                      //     'currentIndex': index,
-                      //   },
-                      // );
+                        Get.to(
+                MusicPlayer(data: snapshot.data![index]),
+              );
                     },
                     child: Container(
                       padding: EdgeInsets.all(12.h),
