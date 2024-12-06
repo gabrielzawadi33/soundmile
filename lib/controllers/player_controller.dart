@@ -38,15 +38,15 @@ class PlayerController extends GetxController {
     });
   }
 
-  // Toggle play/pause state
-  Future<void> togglePlayPause() async {
-    isPlaying.value = !isPlaying.value;
-    if (audioPlayer.playing) {
-      await audioPlayer.pause();
-    } else {
-      await audioPlayer.play();
-    }
-  }
+  // // Toggle play/pause state
+  // Future<void> togglePlayPause(String path) async {
+  //   isPlaying.value = !isPlaying.value;
+  //   if (audioPlayer.playing) {
+  //     await audioPlayer.pause();
+  //   } else {
+  //     await audioPlayer.play();
+  //   }
+  // }
 
   // Play next song
   void playNextSong(List<String> songUrls) {
@@ -81,5 +81,20 @@ class PlayerController extends GetxController {
   void onClose() {
     audioPlayer.dispose();
     super.onClose();
+  }
+
+
+  togglePlayPause(String uri) {
+    if (audioPlayer.playing) {
+      audioPlayer.pause();
+    } else {
+      try{
+        audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri)));
+        audioPlayer.play();
+      }on Exception catch (e) {
+        print('Error: $e');
+      }
+      
+    }
   }
 }

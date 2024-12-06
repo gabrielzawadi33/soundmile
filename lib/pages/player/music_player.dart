@@ -20,6 +20,11 @@ class MusicPlayer extends StatefulWidget {
 
 class _MusicPlayerState extends State<MusicPlayer> {
   PlayerController playerController = Get.put(PlayerController());
+  @override
+  void initState() {
+    print(' &&&&&&&& ${widget.data}');
+    super.initState();
+  }
   // late int currentIndex;
   // bool isThirtySecondsReached = false;
   // late List<Song> shuffledSongs;
@@ -374,8 +379,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     stream: playerController.audioPlayer.positionStream,
                     builder: (context, positionSnapshot) {
                       final position =
-                          positionSnapshot.data?.inMilliseconds.toDouble() ??
-                              0.0;
+                          positionSnapshot.data?.inMilliseconds.toDouble() ?? 0.0;
                       return Expanded(
                         child: Slider(
                           min: 0.0,
@@ -430,13 +434,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       color: Colors.white,
                     ),
                     onPressed: () async {
-                      playerController.playingSong= widget.data as Type;
-                      await playerController.togglePlayPause();
+                      // playerController.playingSong = widget.data as SongModel;
+                      await playerController.togglePlayPause(widget.data.uri!);
                     },
                   )),
               getHorSpace(40.h),
               IconButton(
-                icon: Icon(Icons.skip_next, color: Colors.white),
+                icon: Icon(Icons.skip_next, color: const Color.fromARGB(255, 94, 44, 44)),
                 iconSize: 42.h,
                 onPressed: () {
                   // playNextSong();
@@ -518,7 +522,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
       ),
     );
   }
-
   Widget buildPlaylistSection() {
     return Column(
       children: [

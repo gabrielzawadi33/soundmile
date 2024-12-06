@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
     //   Constant.closeApp();
     // }
     super.key,
-  });
+  }); 
   final user = Get.arguments;
 
   @override
@@ -27,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<ModelBottom> bottomLists = DataFile.bottomList;
+   SongController audioController = Get.put(SongController());
 
   // void backClick() {
   //   Constant.closeApp();
@@ -47,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var audioController = Get.put(SongController());
     setStatusBarColor(bgDark);
     Constant.setupSize(context);
     return WillPopScope(

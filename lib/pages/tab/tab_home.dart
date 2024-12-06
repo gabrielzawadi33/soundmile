@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/pages/player/music_player.dart';
@@ -24,6 +25,28 @@ class _TabHomeState extends State<TabHome> {
   TextEditingController searchController = TextEditingController();
   HomeScreenController controller = Get.put(HomeScreenController());
   SongController songController = Get.find<SongController>();
+  @override
+  void initState() {
+    super.initState();
+    requestPermissions();
+  }
+
+  // ignore: non_constant_identifier_names
+  Future<List<SongModel>> requestPermissions() async {
+    PermissionStatus status = await Permission.storage.request();
+    if (status.isGranted) {
+      return songController.audioQuery.querySongs(
+        ignoreCase: true,
+        orderType: OrderType.ASC_OR_SMALLER,
+        sortType: null,
+        uriType: UriType.EXTERNAL,
+      );
+    } else {
+      // Handle the case when permission is denied
+      // You can show a dialog or a message to the user
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,12 +204,7 @@ class _TabHomeState extends State<TabHome> {
         ).paddingSymmetric(horizontal: 20.h),
         getVerSpace(20.h),
         FutureBuilder<List<SongModel>>(
-          future: songController.audioQuery.querySongs(
-            ignoreCase: true,
-            orderType: OrderType.ASC_OR_SMALLER,
-            sortType: null,
-            uriType: UriType.EXTERNAL,
-          ),
+          future: requestPermissions() ,
           builder:
               (BuildContext context, AsyncSnapshot<List<SongModel>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {

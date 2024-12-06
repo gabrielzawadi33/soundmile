@@ -4,15 +4,14 @@ import 'package:permission_handler/permission_handler.dart';
 
 class SongController extends GetxController {
   final audioQuery = OnAudioQuery();
+  @override
+  void onInit() {
+    super.onInit();
+    checkPermission();
+  }
   checkPermission() async {
     var permision = await Permission.storage.request();
     if (permision.isGranted) {
-      return audioQuery.querySongs(
-        ignoreCase: true,
-        orderType: OrderType.ASC_OR_SMALLER,
-        sortType: null,
-        uriType: UriType.EXTERNAL,
-      );
     } else {
       checkPermission();
     }
