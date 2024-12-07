@@ -234,10 +234,12 @@ class _TabHomeState extends State<TabHome> {
                     snapshot.data!.length > 40 ? 40 : snapshot.data!.length,
                 itemBuilder: (context, index) {
                   SongModel song = snapshot.data![index];
+
+                  List<SongModel> songs = snapshot.data!;
                   return GestureDetector(
                     onTap: () {
                         Get.to(
-                MusicPlayer(data: snapshot.data![index]),
+                MusicPlayer(songs: songs, index: index),
               );
                     },
                     child: Container(

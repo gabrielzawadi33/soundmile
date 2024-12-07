@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class PlayerController extends GetxController {
   static final PlayerController _instance = PlayerController._internal();
   final AudioPlayer audioPlayer = AudioPlayer();
-  var  playingSong = Rx<SongModel>;
+  var playingSong = Rx<SongModel>;
   var isPlaying = false.obs;
   var currentIndex = 0.obs;
   var isFavourite = false.obs;
@@ -38,39 +37,29 @@ class PlayerController extends GetxController {
     });
   }
 
-  // // Toggle play/pause state
-  // Future<void> togglePlayPause(String path) async {
-  //   isPlaying.value = !isPlaying.value;
-  //   if (audioPlayer.playing) {
-  //     await audioPlayer.pause();
-  //   } else {
-  //     await audioPlayer.play();
-  //   }
-  // }
+
 
   // Play next song
-  void playNextSong(List<String> songUrls) {
-    if (currentIndex.value < songUrls.length - 1) {
+  void playNextSong(List<SongModel> songs) {
+    if (currentIndex.value < songs.length - 1) {
       currentIndex++;
-      playSong(songUrls[currentIndex.value]);
+      playSong(songs[currentIndex.value].uri as String);
     }
   }
 
   // Play previous song
-  void playPreviousSong(List<String> songUrls) {
+  void playPreviousSong(List<SongModel> songs) {
     if (currentIndex.value > 0) {
       currentIndex--;
-      playSong(songUrls[currentIndex.value]);
+      playSong(songs[currentIndex.value].uri as String);
     }
   }
 
-  
-
-  // Play song from a URL or file path
-  Future<void> playSong(String url) async {
+  // Play song from a URI or file path
+   playSong(String uri) {
     try {
-      await audioPlayer.setUrl(url); // Use setFilePath for local files
-      await audioPlayer.play();
+      audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri)));
+       audioPlayer.play();
       isPlaying.value = true;
     } catch (e) {
       print("Error playing song: $e");
@@ -83,18 +72,19 @@ class PlayerController extends GetxController {
     super.onClose();
   }
 
-
   togglePlayPause(String uri) {
     if (audioPlayer.playing) {
       audioPlayer.pause();
     } else {
-      try{
-        audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri)));
+      try {
+        if (audioPlayer.position == Duration.zero) {
+          audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri)));
+        }
         audioPlayer.play();
-      }on Exception catch (e) {
+      } on Exception catch (e) {
         print('Error: $e');
       }
-      
     }
+    isPlaying.value = !isPlaying.value;
   }
 }

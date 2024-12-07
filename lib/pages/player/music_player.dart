@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/util/constant_widget.dart';
@@ -10,9 +9,10 @@ import '../../util/color_category.dart';
 import '../../util/constant.dart';
 
 class MusicPlayer extends StatefulWidget {
-  SongModel data;
+  List<SongModel> songs;
+  int index;
 
-   MusicPlayer({super.key, required this.data});
+  MusicPlayer({super.key, required this.songs, required this.index});
 
   @override
   State<MusicPlayer> createState() => _MusicPlayerState();
@@ -20,14 +20,15 @@ class MusicPlayer extends StatefulWidget {
 
 class _MusicPlayerState extends State<MusicPlayer> {
   PlayerController playerController = Get.put(PlayerController());
+  late List<SongModel> shuffledSongs;
+
   @override
   void initState() {
-    print(' &&&&&&&& ${widget.data}');
     super.initState();
   }
   // late int currentIndex;
   // bool isThirtySecondsReached = false;
-  // late List<Song> shuffledSongs;
+  //
   // late List<String> existingPlaylists;
 
   // fetchPlaylists() async {
@@ -224,63 +225,60 @@ class _MusicPlayerState extends State<MusicPlayer> {
     return number;
   }
 
-  // void playNextSong() {
-  //   audioController.isPlaying.value = true;
-  //   setState(() {
-  //     if (audioController.isShuffle.value) {
-  //       currentIndex = generateUniqueRandomNumber(shuffledSongs.length);
-  //     } else {
-  //       if (currentIndex < widget.songs.length - 1) {
-  //         currentIndex++;
-  //       } else {
-  //         // Handle end of the list in original mode
-  //         audioController.audioPlayer.stop();
+  void playNextSong() {
+    playerController.isPlaying.value = true;
+    setState(() {
+      if (playerController.isShuffle.value) {
+        widget.index = generateUniqueRandomNumber(shuffledSongs.length);
+      } else {
+        if (widget.index < widget.songs.length - 1) {
+          widget.index++;
+        } else {
+          // Handle end of the list in original mode
 
-  //         return;
-  //       }
-  //     }
+          return;
+        }
+      }
+    });
 
-  //   });
+    playerController.audioPlayer.stop();
+    playerController.togglePlayPause(widget.songs[widget.index].uri!);
+  }
 
-  //   _prepareNetworkAudio();
-  //   audioController.audioPlayer.play();
-  // }
+  void playPreviousSong() {
+    setState(() {
+      if (playerController.isShuffle.value) {
+        if (widget.index > 0) {
+          widget.index--;
+        } else {
+          widget.index = shuffledSongs.length - 1;
+        }
+      } else {
+        if (widget.index > 0) {
+          widget.index--;
+        }
+      }
+    });
+    playerController.audioPlayer.stop();
+    playerController.togglePlayPause(widget.songs[widget.index].uri!);
+  }
 
-  // void playPreviousSong() {
-  //   setState(() {
-  //     if (audioController.isShuffle.value) {
-  //       if (currentIndex > 0) {
-  //         currentIndex--;
-  //       } else {
-  //         currentIndex = shuffledSongs.length - 1;
-  //       }
-  //     } else {
-  //       if (currentIndex > 0) {
-  //         currentIndex--;
-  //       }
-  //     }
-  //   });
-  //   _prepareNetworkAudio();
-  //   audioController.audioPlayer.play();
-  //   audioController.isPlaying.value = true;
-  // }
-
-  // void shuffleSongs() {
-  //   setState(() {
-  //     audioController.isShuffle.value = !audioController.isShuffle.value;
-  //     if (audioController.isShuffle.value) {
-  //       shuffledSongs.shuffle();
-  //       // Update currentIndex to match the current song in shuffledSongs
-  //       currentIndex = shuffledSongs
-  //           .indexWhere((song) => song.id == widget.songs[currentIndex].id);
-  //     } else {
-  //       // Map the currentIndex back to the original list
-  //       currentIndex = widget.songs
-  //           .indexWhere((song) => song.id == shuffledSongs[currentIndex].id);
-  //       shuffledSongs = List.from(widget.songs); // Reset to original order
-  //     }
-  //   });
-  // }
+  void shuffleSongs() {
+    setState(() {
+      playerController.isShuffle.value = !playerController.isShuffle.value;
+      if (playerController.isShuffle.value) {
+        shuffledSongs.shuffle();
+        // Update currentIndex to match the current song in shuffledSongs
+        widget.index = shuffledSongs
+            .indexWhere((song) => song.id == widget.songs[widget.index].id);
+      } else {
+        // Map the currentIndex back to the original list
+        widget.index = widget.songs
+            .indexWhere((song) => song.id == shuffledSongs[widget.index].id);
+        shuffledSongs = List.from(widget.songs); // Reset to original order
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -311,7 +309,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
               getVerSpace(30.h),
               getAppBar(() {
                 backClick();
-              }, widget.data.title!),
+              }, widget.songs[widget.index].title!),
               getVerSpace(40.h),
               Expanded(
                 child: ListView(
@@ -326,7 +324,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     getVerSpace(30.h),
                     buildPlaylistSection(),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                           // audioController.isShuffle.value
                           //   ? Icons.shuffle_on
                           //   :
@@ -379,7 +377,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     stream: playerController.audioPlayer.positionStream,
                     builder: (context, positionSnapshot) {
                       final position =
-                          positionSnapshot.data?.inMilliseconds.toDouble() ?? 0.0;
+                          positionSnapshot.data?.inMilliseconds.toDouble() ??
+                              0.0;
                       return Expanded(
                         child: Slider(
                           min: 0.0,
@@ -421,7 +420,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 icon: Icon(Icons.skip_previous, color: Colors.white),
                 iconSize: 42.h,
                 onPressed: () {
-                  // playPreviousSong();
+                  playPreviousSong();
                 },
               ),
               getHorSpace(40.h),
@@ -435,14 +434,17 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     ),
                     onPressed: () async {
                       // playerController.playingSong = widget.data as SongModel;
-                      await playerController.togglePlayPause(widget.data.uri!);
+                      await playerController
+                          .togglePlayPause(widget.songs[widget.index].uri!);
                     },
                   )),
               getHorSpace(40.h),
               IconButton(
-                icon: Icon(Icons.skip_next, color: const Color.fromARGB(255, 94, 44, 44)),
+                icon: Icon(Icons.skip_next,
+                    color: const Color.fromARGB(255, 94, 44, 44)),
                 iconSize: 42.h,
                 onPressed: () {
+                  playNextSong();
                   // playNextSong();
                 },
               ),
@@ -522,6 +524,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
       ),
     );
   }
+
   Widget buildPlaylistSection() {
     return Column(
       children: [
@@ -613,10 +616,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Column buildMusicDetail() {
     return Column(
       children: [
-        getCustomFont(widget.data.title!, 22.sp, Colors.white, 1,
+        getCustomFont(widget.songs[widget.index].title!, 22.sp, Colors.white, 1,
             fontWeight: FontWeight.w700),
         getVerSpace(2.h),
-        getMultilineCustomFont(widget.data.artist!, 16.sp, hintColor,
+        getMultilineCustomFont(
+            widget.songs[widget.index].artist!, 16.sp, hintColor,
             fontWeight: FontWeight.w400),
       ],
     );
@@ -631,7 +635,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
           borderRadius: BorderRadius.circular(22.h),
         ),
         child: QueryArtworkWidget(
-          id: widget.data.id,
+          id: widget.songs[widget.index].id,
           type: ArtworkType.AUDIO,
           artworkHeight: double.infinity,
           artworkWidth: double.infinity,
