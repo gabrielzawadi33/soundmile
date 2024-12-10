@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -93,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   left: 0,
                   right: 0,
                   child: Container(
+                    height: 70,
                     decoration: BoxDecoration(
                       color: accentColor
                           .withOpacity(0.1)
@@ -116,25 +118,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         //   },
                         // );
                       },
-                      leading: Container(
-                        height: 76.h,
-                        width: 76.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22.h),
-                          // image: DecorationImage(
-                          //     image: NetworkImage(song.photo!),
-                          //     fit: BoxFit.cover),
-                        ),
-                        child: QueryArtworkWidget(
-                          artworkBorder: BorderRadius.circular(22.h),
-                          id: playerController.playingSong.value!.id
-                          ,
-                          type: ArtworkType.AUDIO,
-                          // artworkQuality: 100,
+                      leading: Padding(
+                        padding: const EdgeInsets.only(bottom:8.0),
+                        child: Container(
+                          height: 70,
+                          padding: const EdgeInsets.only(bottom: 5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22.h),
+                            // image: DecorationImage(
+                            //     image: NetworkImage(song.photo!),
+                            //     fit: BoxFit.cover),
+                          ),
+                          child: QueryArtworkWidget(
+                            artworkBorder: BorderRadius.circular(22.h),
+                            id: playerController.playingSong.value!.id,
+                            type: ArtworkType.AUDIO,
+                            // artworkQuality: 100,
+                          ),
                         ),
                       ),
                       title: Text(
                         playerController.playingSong.value!.artist ?? 'Unknown',
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -143,9 +148,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: Text(
                           playerController.playingSong.value?.title ??
                               'Unknown',
-                          style: TextStyle(fontSize: 12, color: Colors.white)),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.white)),
                       trailing: IconButton(
-                        icon: Icon(Icons.play_arrow, color: Colors.white),
+                        icon: const Icon(Icons.pause, color: Colors.white),
                         onPressed: () {
                           // audioController.togglePlayPause();
                         },

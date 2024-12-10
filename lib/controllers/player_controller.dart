@@ -18,6 +18,7 @@ class PlayerController extends GetxController {
   }
 
   Duration get currentPlaybackPosition => audioPlayer.position;
+  
 
   // Method to resume playback for a song
   Future<void> resumeCurrentSong() async {

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/util/constant_widget.dart';
@@ -26,7 +27,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
   @override
   void initState() {
     super.initState();
+    initPlayerListener();
   }
+
+
+  
   // late int currentIndex;
   // bool isThirtySecondsReached = false;
   //
@@ -210,6 +215,16 @@ class _MusicPlayerState extends State<MusicPlayer> {
   //     isThirtySecondsReached = false; // Reset for each new song
   //   }
   // }
+
+
+  void initPlayerListener() {
+  playerController.audioPlayer.playerStateStream.listen((playerState) {
+    if (playerState.processingState == ProcessingState.completed) {
+      playNextSong();
+    }
+  });
+}
+
 
   int generateUniqueRandomNumber(int range) {
     final random = Random();
@@ -512,19 +527,19 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Widget buildPlaylistSection() {
     return Column(
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // getCustomFont('  ${widget.songs.length.toString()}  Songs', 15.sp,
             //     "#F9F9F9".toColor(), 1,
             //     fontWeight: FontWeight.w700),
-            GestureDetector(
-              onTap: () {
-                // Constant.sendToNext(context, Routes.playListRoute);
-              },
-              child: getCustomFont("View All", 12.sp, accentColor, 1,
-                  fontWeight: FontWeight.w700),
-            )
+          //   GestureDetector(
+          //     onTap: () {
+          //       // Constant.sendToNext(context, Routes.playListRoute);
+          //     },
+          //     child: getCustomFont("View All", 12.sp, accentColor, 1,
+          //         fontWeight: FontWeight.w700),
+          //   )
           ],
         ),
         getVerSpace(20.h),
