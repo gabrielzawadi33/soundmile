@@ -5,7 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 class PlayerController extends GetxController {
   static final PlayerController _instance = PlayerController._internal();
   final AudioPlayer audioPlayer = AudioPlayer();
-  var playingSong = Rx<SongModel>;
+  var playingSong = Rx<SongModel?>(null);
   var isPlaying = false.obs;
   var currentIndex = 0.obs;
   var isFavourite = false.obs;
@@ -37,8 +37,6 @@ class PlayerController extends GetxController {
     });
   }
 
-
-
   // Play next song
   void playNextSong(List<SongModel> songs) {
     if (currentIndex.value < songs.length - 1) {
@@ -56,10 +54,10 @@ class PlayerController extends GetxController {
   }
 
   // Play song from a URI or file path
-   playSong(String uri) {
+  playSong(String uri) {
     try {
       audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri)));
-       audioPlayer.play();
+      audioPlayer.play();
       isPlaying.value = true;
     } catch (e) {
       print("Error playing song: $e");

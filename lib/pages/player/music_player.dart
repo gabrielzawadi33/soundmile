@@ -21,6 +21,7 @@ class MusicPlayer extends StatefulWidget {
 class _MusicPlayerState extends State<MusicPlayer> {
   PlayerController playerController = Get.put(PlayerController());
   late List<SongModel> shuffledSongs;
+  Set<int> generatedNumbers = {};
 
   @override
   void initState() {
@@ -211,7 +212,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
   // }
 
   int generateUniqueRandomNumber(int range) {
-    Set<int> generatedNumbers = {};
     final random = Random();
     if (generatedNumbers.length == range) {
       // All possible numbers have been generated
@@ -226,16 +226,14 @@ class _MusicPlayerState extends State<MusicPlayer> {
   }
 
   void playNextSong() {
-    playerController.isPlaying.value = true;
     setState(() {
       if (playerController.isShuffle.value) {
-        widget.index = generateUniqueRandomNumber(shuffledSongs.length);
+        widget.index = generateUniqueRandomNumber(widget.songs.length);
       } else {
         if (widget.index < widget.songs.length - 1) {
           widget.index++;
         } else {
           // Handle end of the list in original mode
-
           return;
         }
       }
@@ -243,6 +241,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
 
     playerController.audioPlayer.stop();
     playerController.togglePlayPause(widget.songs[widget.index].uri!);
+    playerController.playingSong.value = widget.songs[widget.index];
+    playerController.isPlaying.value = true;
   }
 
   void playPreviousSong() {
@@ -251,7 +251,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
         if (widget.index > 0) {
           widget.index--;
         } else {
-          widget.index = shuffledSongs.length - 1;
+          widget.index = widget.songs.length - 1;
         }
       } else {
         if (widget.index > 0) {
@@ -261,23 +261,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
     });
     playerController.audioPlayer.stop();
     playerController.togglePlayPause(widget.songs[widget.index].uri!);
-  }
-
-  void shuffleSongs() {
-    setState(() {
-      playerController.isShuffle.value = !playerController.isShuffle.value;
-      if (playerController.isShuffle.value) {
-        shuffledSongs.shuffle();
-        // Update currentIndex to match the current song in shuffledSongs
-        widget.index = shuffledSongs
-            .indexWhere((song) => song.id == widget.songs[widget.index].id);
-      } else {
-        // Map the currentIndex back to the original list
-        widget.index = widget.songs
-            .indexWhere((song) => song.id == shuffledSongs[widget.index].id);
-        shuffledSongs = List.from(widget.songs); // Reset to original order
-      }
-    });
+    playerController.playingSong.value = widget.songs[widget.index];
+    playerController.isPlaying.value = true;
   }
 
   @override
@@ -324,11 +309,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     getVerSpace(30.h),
                     buildPlaylistSection(),
                     IconButton(
-                      icon: const Icon(
-                          // audioController.isShuffle.value
-                          //   ? Icons.shuffle_on
-                          //   :
-                          Icons.shuffle),
+                      icon: Icon(playerController.isShuffle.value
+                          ? Icons.shuffle_on
+                          : Icons.shuffle),
                       onPressed: () {},
                     ),
                   ],
@@ -436,16 +419,17 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       // playerController.playingSong = widget.data as SongModel;
                       await playerController
                           .togglePlayPause(widget.songs[widget.index].uri!);
+                      playerController.playingSong.value =
+                          widget.songs[widget.index];
                     },
                   )),
               getHorSpace(40.h),
               IconButton(
-                icon: Icon(Icons.skip_next,
-                    color: const Color.fromARGB(255, 94, 44, 44)),
+                icon: Icon(Icons.skip_next_sharp,
+                    color: Colors.white, size: 42.h),
                 iconSize: 42.h,
                 onPressed: () {
                   playNextSong();
-                  // playNextSong();
                 },
               ),
             ],

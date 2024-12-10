@@ -1,6 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+import 'package:sound_mile/controllers/player_controller.dart';
 
 import '../controllers/audio_controller.dart';
 import '../controllers/home_conroller.dart';
@@ -18,7 +22,7 @@ class HomeScreen extends StatefulWidget {
     //   Constant.closeApp();
     // }
     super.key,
-  }); 
+  });
   final user = Get.arguments;
 
   @override
@@ -27,7 +31,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<ModelBottom> bottomLists = DataFile.bottomList;
-   SongController audioController = Get.put(SongController());
+  SongController audioController = Get.put(SongController());
+  PlayerController playerController = Get.put(PlayerController());
 
   // void backClick() {
   //   Constant.closeApp();
@@ -78,71 +83,76 @@ class _HomeScreenState extends State<HomeScreen> {
     return Obx(
       () {
         return SizedBox(
-          // height: (audioController.isPlaying.value) ? 120.h : 60.h,
-          height: 160.h,
+          height: (playerController.isPlaying.value) ? 120.h : 60.h,
           child: Stack(
             children: [
-              // if (audioController
-              //     .isPlaying.value) // Show only if isPlaying is true
-              //   Positioned(
-              //     top: 0.h,
-              //     left: 0,
-              //     right: 0,
-              //     child: Container(
-              //       decoration: BoxDecoration(
-              //         color: accentColor.withOpacity(0.1)
-              //             .withOpacity(0.8), // Adjusted color and opacity
-              //         boxShadow: [
-              //           BoxShadow(
-              //             color: Colors.black.withOpacity(0.1),
-              //             offset: const Offset(0, -1),
-              //             blurRadius: 10,
-              //           ),
-              //         ],
-              //       ),
-              //       child: ListTile(
-              //         onTap: () {
-              //           Constant.sendToNext(
-              //             context,
-              //             Routes.musicDetailRoute,
-              //             arguments: {
-              //               'songs': songController.popularSongs,
-              //               'currentIndex': audioController.currentIndex.value,
-              //             },
-              //           );
-              //         },
-              //         leading: Container(
-              //           height: 46.h,
-              //           width: 46.h,
-              //           decoration: BoxDecoration(
-              //             borderRadius: BorderRadius.circular(12.h),
-              //             image: DecorationImage(
-              //                 image: NetworkImage(
-              //                     audioController.playingSong.value?.photo ??
-              //                         ''),
-              //                 fit: BoxFit.fill),
-              //           ),
-              //         ),
-              //         title: Text(
-              //           audioController.playingSong.value?.artistName ??
-              //               'Unknown',
-              //           style: const TextStyle(
-              //               fontSize: 10,
-              //               fontWeight: FontWeight.bold,
-              //               color: Colors.white),
-              //         ),
-              //         subtitle: Text(
-              //             audioController.playingSong.value?.title ?? 'Unknown',
-              //             style: TextStyle(fontSize: 12, color: Colors.white)),
-              //         trailing: IconButton(
-              //           icon: Icon(Icons.play_arrow, color: Colors.white),
-              //           onPressed: () {
-              //             audioController.togglePlayPause();
-              //           },
-              //         ),
-              //       ),
-              //     ),
-              //   ),
+              if (playerController
+                  .isPlaying.value) // Show only if isPlaying is true
+                Positioned(
+                  top: 0.h,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: accentColor
+                          .withOpacity(0.1)
+                          .withOpacity(0.8), // Adjusted color and opacity
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          offset: const Offset(0, -1),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      onTap: () {
+                        // Constant.sendToNext(
+                        //   context,
+                        //   Routes.musicDetailRoute,
+                        //   arguments: {
+                        //     'songs': songController.popularSongs,
+                        //     'currentIndex': audioController.currentIndex.value,
+                        //   },
+                        // );
+                      },
+                      leading: Container(
+                        height: 76.h,
+                        width: 76.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22.h),
+                          // image: DecorationImage(
+                          //     image: NetworkImage(song.photo!),
+                          //     fit: BoxFit.cover),
+                        ),
+                        child: QueryArtworkWidget(
+                          artworkBorder: BorderRadius.circular(22.h),
+                          id: playerController.playingSong.value!.id
+                          ,
+                          type: ArtworkType.AUDIO,
+                          // artworkQuality: 100,
+                        ),
+                      ),
+                      title: Text(
+                        playerController.playingSong.value!.artist ?? 'Unknown',
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      subtitle: Text(
+                          playerController.playingSong.value?.title ??
+                              'Unknown',
+                          style: TextStyle(fontSize: 12, color: Colors.white)),
+                      trailing: IconButton(
+                        icon: Icon(Icons.play_arrow, color: Colors.white),
+                        onPressed: () {
+                          // audioController.togglePlayPause();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
               Positioned(
                 bottom: 0.h,
                 left: 0,
