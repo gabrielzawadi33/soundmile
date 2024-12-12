@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // );
                       },
                       leading: Padding(
-                        padding: const EdgeInsets.only(bottom:8.0),
+                        padding: const EdgeInsets.only(bottom: 8.0),
                         child: Container(
                           height: 70,
                           padding: const EdgeInsets.only(bottom: 5),
@@ -129,11 +129,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             //     image: NetworkImage(song.photo!),
                             //     fit: BoxFit.cover),
                           ),
-                          child: QueryArtworkWidget(
-                            artworkBorder: BorderRadius.circular(22.h),
-                            id: playerController.playingSong.value!.id,
-                            type: ArtworkType.AUDIO,
-                            // artworkQuality: 100,
+                          child: Obx(
+                            () {
+                              return
+                              QueryArtworkWidget(
+                                artworkBorder: BorderRadius.circular(22.h),
+                                id: playerController.playingSong.value!.id,
+                                type: ArtworkType.AUDIO,
+                                // artworkQuality: 100,
+                              );
+                            },
                           ),
                         ),
                       ),

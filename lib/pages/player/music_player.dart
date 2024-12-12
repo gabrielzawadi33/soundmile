@@ -22,16 +22,14 @@ class MusicPlayer extends StatefulWidget {
 class _MusicPlayerState extends State<MusicPlayer> {
   PlayerController playerController = Get.put(PlayerController());
   late List<SongModel> shuffledSongs;
-  Set<int> generatedNumbers = {};
 
   @override
   void initState() {
     super.initState();
-    initPlayerListener();
+    // playerController.songs.value = widget.songs;
+    // playerController.currentIndex.value = widget.index;
   }
 
-
-  
   // late int currentIndex;
   // bool isThirtySecondsReached = false;
   //
@@ -216,70 +214,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
   //   }
   // }
 
-
-  void initPlayerListener() {
-  playerController.audioPlayer.playerStateStream.listen((playerState) {
-    if (playerState.processingState == ProcessingState.completed) {
-      playNextSong();
-    }
-  });
-}
-
-
-  int generateUniqueRandomNumber(int range) {
-    final random = Random();
-    if (generatedNumbers.length == range) {
-      // All possible numbers have been generated
-      generatedNumbers.clear(); // Reset the set if all numbers have been used
-    }
-    int number;
-    do {
-      number = random.nextInt(range);
-    } while (generatedNumbers.contains(number));
-    generatedNumbers.add(number);
-    return number;
-  }
-
-  void playNextSong() {
-    setState(() {
-      if (playerController.isShuffle.value) {
-        widget.index = generateUniqueRandomNumber(widget.songs.length);
-      } else {
-        if (widget.index < widget.songs.length - 1) {
-          widget.index++;
-        } else {
-          // Handle end of the list in original mode
-          return;
-        }
-      }
-    });
-
-    playerController.audioPlayer.stop();
-    playerController.togglePlayPause(widget.songs[widget.index].uri!);
-    playerController.playingSong.value = widget.songs[widget.index];
-    playerController.isPlaying.value = true;
-  }
-
-  void playPreviousSong() {
-    setState(() {
-      if (playerController.isShuffle.value) {
-        if (widget.index > 0) {
-          widget.index--;
-        } else {
-          widget.index = widget.songs.length - 1;
-        }
-      } else {
-        if (widget.index > 0) {
-          widget.index--;
-        }
-      }
-    });
-    playerController.audioPlayer.stop();
-    playerController.togglePlayPause(widget.songs[widget.index].uri!);
-    playerController.playingSong.value = widget.songs[widget.index];
-    playerController.isPlaying.value = true;
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -293,6 +227,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      playerController.currentIndex.value = widget.index;
+    });
+
     setStatusBarColor(bgDark);
     Constant.setupSize(context);
     return WillPopScope(
@@ -307,9 +245,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
           child: Column(
             children: [
               getVerSpace(30.h),
-              getAppBar(() {
-                backClick();
-              }, widget.songs[widget.index].title!),
+              Obx(() {
+                return getAppBar(() {
+                  backClick();
+                }, playerController.playingSong.value?.title ?? '');
+              }),
               getVerSpace(40.h),
               Expanded(
                 child: ListView(
@@ -418,7 +358,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 icon: Icon(Icons.skip_previous, color: Colors.white),
                 iconSize: 42.h,
                 onPressed: () {
-                  playPreviousSong();
+                  playerController.playPreviousSong();
                 },
               ),
               getHorSpace(40.h),
@@ -431,11 +371,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       color: Colors.white,
                     ),
                     onPressed: () async {
-                      // playerController.playingSong = widget.data as SongModel;
-                      await playerController
-                          .togglePlayPause(widget.songs[widget.index].uri!);
-                      playerController.playingSong.value =
-                          widget.songs[widget.index];
+                      await playerController.togglePlayPause();
                     },
                   )),
               getHorSpace(40.h),
@@ -444,7 +380,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     color: Colors.white, size: 42.h),
                 iconSize: 42.h,
                 onPressed: () {
-                  playNextSong();
+                  playerController.playNextSong();
                 },
               ),
             ],
@@ -533,13 +469,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
             // getCustomFont('  ${widget.songs.length.toString()}  Songs', 15.sp,
             //     "#F9F9F9".toColor(), 1,
             //     fontWeight: FontWeight.w700),
-          //   GestureDetector(
-          //     onTap: () {
-          //       // Constant.sendToNext(context, Routes.playListRoute);
-          //     },
-          //     child: getCustomFont("View All", 12.sp, accentColor, 1,
-          //         fontWeight: FontWeight.w700),
-          //   )
+            //   GestureDetector(
+            //     onTap: () {
+            //       // Constant.sendToNext(context, Routes.playListRoute);
+            //     },
+            //     child: getCustomFont("View All", 12.sp, accentColor, 1,
+            //         fontWeight: FontWeight.w700),
+            //   )
           ],
         ),
         getVerSpace(20.h),
@@ -615,12 +551,21 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Column buildMusicDetail() {
     return Column(
       children: [
-        getCustomFont(widget.songs[widget.index].title!, 22.sp, Colors.white, 1,
-            fontWeight: FontWeight.w700),
+        Obx(() {
+          return getCustomFont(playerController.playingSong.value?.title ?? "",
+              22.sp, Colors.white, 1,
+              fontWeight: FontWeight.w700);
+        }),
         getVerSpace(2.h),
-        getMultilineCustomFont(
-            widget.songs[widget.index].artist!, 16.sp, hintColor,
-            fontWeight: FontWeight.w400),
+        Obx(
+          () {
+            return getMultilineCustomFont(
+                playerController.playingSong.value?.artist ?? '',
+                16.sp,
+                hintColor,
+                fontWeight: FontWeight.w400);
+          },
+        ),
       ],
     );
   }
@@ -633,12 +578,16 @@ class _MusicPlayerState extends State<MusicPlayer> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22.h),
         ),
-        child: QueryArtworkWidget(
-          id: widget.songs[widget.index].id,
-          type: ArtworkType.AUDIO,
-          artworkHeight: double.infinity,
-          artworkWidth: double.infinity,
-          nullArtworkWidget: const Icon(Icons.music_note),
+        child: Obx(
+          () {
+            return QueryArtworkWidget(
+              id: playerController.playingSong.value?.id ?? 0,
+              type: ArtworkType.AUDIO,
+              artworkHeight: double.infinity,
+              artworkWidth: double.infinity,
+              nullArtworkWidget: const Icon(Icons.music_note),
+            );
+          },
         ),
       ),
     );

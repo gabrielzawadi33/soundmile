@@ -5,6 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
+import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/pages/player/music_player.dart';
 
 import '../../controllers/home_conroller.dart';
@@ -25,55 +26,81 @@ class _TabHomeState extends State<TabHome> {
   TextEditingController searchController = TextEditingController();
   HomeScreenController controller = Get.put(HomeScreenController());
   SongController songController = Get.find<SongController>();
+  PlayerController playerController = Get.put(PlayerController());
+  bool isGranted = false;
+
   @override
   void initState() {
     super.initState();
-    requestPermissions();
+    // requestPermissions();
   }
 
-  // ignore: non_constant_identifier_names
-  Future<List<SongModel>> requestPermissions() async {
-    PermissionStatus status = await Permission.storage.request();
-    if (status.isGranted) {
-      return songController.audioQuery.querySongs(
-        ignoreCase: true,
-        orderType: OrderType.ASC_OR_SMALLER,
-        sortType: null,
-        uriType: UriType.EXTERNAL,
-      );
-    } else {
-      // Handle the case when permission is denied
-      // You can show a dialog or a message to the user
-      return [];
-    }
-  }
+  // // ignore: non_constant_identifier_names
+  // Future<List<SongModel>> requestPermissions() async {
+  //   PermissionStatus status = await Permission.storage.request();
+  //   if (status.isGranted) {
+  //     return songController.audioQuery.querySongs(
+  //       ignoreCase: true,
+  //       orderType: OrderType.ASC_OR_SMALLER,
+  //       sortType: null,
+  //       uriType: UriType.EXTERNAL,
+  //     );
+  //   } else {
+  //     // Handle the case when permission is denied
+  //     // You can show a dialog or a message to the user
+  //     return [];
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        getVerSpace(30.h),
-        buildAppBar(),
-        getVerSpace(30.h),
-        buildSearchWidget(context),
-        getVerSpace(30.h),
-        Expanded(
-            flex: 1,
-            child: ListView(
-              primary: true,
-              shrinkWrap: false,
-              children: [
-                // buildSliderWidget(),
-                getVerSpace(20.h),
-                buildPopularPodcastList(),
-                getVerSpace(30.h),
-                buildLatestMusicList(),
-                getVerSpace(10.h),
-                // buildArtistList(),
-                getVerSpace(40.h),
-              ],
-            ))
-      ],
+    return Obx(
+      () {
+        return Column(
+          children: [
+            getVerSpace(30.h),
+            buildAppBar(),
+            getVerSpace(30.h),
+            buildSearchWidget(context),
+            getVerSpace(30.h),
+            songController.isGranted.value
+                ? Expanded(
+                    flex: 1,
+                    child: ListView(
+                      primary: true,
+                      shrinkWrap: false,
+                      children: [
+                        // buildSliderWidget(),
+                        getVerSpace(20.h),
+                        buildPopularPodcastList(),
+                        getVerSpace(30.h),
+                        buildLatestMusicList(),
+                        getVerSpace(10.h),
+                        // buildArtistList(),
+                        getVerSpace(40.h),
+                      ],
+                    ),
+                  )
+                : SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: TextButton(
+                          onPressed: () {
+                            Permission.storage.request();
+                            setState(() {
+                              songController.isGranted.value = true;
+                            });
+                            print('permission granted');
+                          },
+                          child: const Text(
+                            'Request Permission',
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    ),
+                  ),
+          ],
+        );
+      },
     );
   }
 
@@ -194,9 +221,7 @@ class _TabHomeState extends State<TabHome> {
             getCustomFont("Latest Music", 18.sp, Colors.white, 1,
                 fontWeight: FontWeight.w700),
             GestureDetector(
-              onTap: () {
-            
-              },
+              onTap: () {},
               child: getCustomFont("View All", 12.sp, accentColor, 1,
                   fontWeight: FontWeight.w700),
             ),
@@ -204,11 +229,11 @@ class _TabHomeState extends State<TabHome> {
         ).paddingSymmetric(horizontal: 20.h),
         getVerSpace(20.h),
         FutureBuilder<List<SongModel>>(
-          future: requestPermissions() ,
+          future: songController.checkPermission(),
           builder:
               (BuildContext context, AsyncSnapshot<List<SongModel>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(
                 child: Column(
@@ -226,21 +251,43 @@ class _TabHomeState extends State<TabHome> {
                 ),
               );
             } else {
+              // return ListView.builder(
+              //   padding: EdgeInsets.symmetric(horizontal: 20.h),
+              //   primary: false,
+              //   shrinkWrap: true,
+              //   itemCount:
+              //       snapshot.data!.length > 40 ? 40 : snapshot.data!.length,
+              //   itemBuilder: (context, index) {
+              //     SongModel song = snapshot.data![index];
+
+              //     List<SongModel> songs = snapshot.data!;
+              //     playerController.songs.value = songs;
+              //     playerController.currentIndex.value = 0;
+              //     return GestureDetector(
+              //       onTap: () {
+              //         playerController.currentIndex.value = index;
+              //         Get.to(
+              //           () => MusicPlayer(songs: songs, index: index),
+              //         );
+              //       },
               return ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 20.h),
-                primary: false,
                 shrinkWrap: true,
-                itemCount:
-                    snapshot.data!.length > 40 ? 40 : snapshot.data!.length,
+                scrollDirection: Axis.vertical,
+                primary: false,
+                itemCount: snapshot.data != null && snapshot.data!.length > 40
+                    ? 40
+                    : snapshot.data?.length ?? 0,
                 itemBuilder: (context, index) {
                   SongModel song = snapshot.data![index];
 
-                  List<SongModel> songs = snapshot.data!;
                   return GestureDetector(
-                    onTap: () {
-                        Get.to(
-                MusicPlayer(songs: songs, index: index),
-              );
+                    onTap: () async {
+                      playerController.currentIndex.value = index;
+                      playerController.playingSong.value =
+                          playerController.songs[index];
+                      Get.to(() =>
+                          MusicPlayer(songs: snapshot.data!, index: index));
                     },
                     child: Container(
                       padding: EdgeInsets.all(12.h),
@@ -325,13 +372,28 @@ class _TabHomeState extends State<TabHome> {
         SizedBox(
           height: 188.h,
           child: FutureBuilder<List<SongModel>>(
-              future: songController.audioQuery.querySongs(
-                ignoreCase: true,
-                orderType: OrderType.ASC_OR_SMALLER,
-                sortType: null,
-                uriType: UriType.EXTERNAL,
-              ),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
+            future: songController.checkPermission(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('No Podcasts available'),
+                      SizedBox(height: 20.h),
+                      ElevatedButton(
+                        onPressed: () async {
+                          songController.checkPermission();
+                        },
+                        child: const Text('Refresh'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+                else{
                 return ListView.builder(
                   padding: EdgeInsets.zero,
                   primary: false,
@@ -405,7 +467,9 @@ class _TabHomeState extends State<TabHome> {
                     );
                   },
                 );
-              }),
+              }
+            },
+          ),
         )
       ],
     );
