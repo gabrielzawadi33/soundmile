@@ -3,14 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/pages/player/music_player.dart';
 
 import '../../controllers/home_conroller.dart';
 import '../../util/color_category.dart';
-import '../../util/constant.dart';
 import '../../util/constant_widget.dart';
 
 class TabHome extends StatefulWidget {
@@ -54,53 +52,48 @@ class _TabHomeState extends State<TabHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        return Column(
-          children: [
-            getVerSpace(30.h),
-            buildAppBar(),
-            getVerSpace(30.h),
-            buildSearchWidget(context),
-            getVerSpace(30.h),
-            songController.isGranted.value
-                ? Expanded(
-                    flex: 1,
-                    child: ListView(
-                      primary: true,
-                      shrinkWrap: false,
-                      children: [
-                        // buildSliderWidget(),
-                        getVerSpace(20.h),
-                        buildPopularPodcastList(),
-                        getVerSpace(30.h),
-                        buildLatestMusicList(),
-                        getVerSpace(10.h),
-                        // buildArtistList(),
-                        getVerSpace(40.h),
-                      ],
-                    ),
-                  )
-                : SizedBox(
-                    height: 100,
-                    child: Center(
-                      child: TextButton(
-                          onPressed: () {
-                            Permission.storage.request();
-                            setState(() {
-                              songController.isGranted.value = true;
-                            });
-                            print('permission granted');
-                          },
-                          child: const Text(
-                            'Request Permission',
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    ),
-                  ),
-          ],
-        );
-      },
+    return Column(
+      children: [
+        getVerSpace(30.h),
+        buildAppBar(),
+        getVerSpace(30.h),
+        buildSearchWidget(context),
+        getVerSpace(30.h),
+        Expanded(
+          flex: 1,
+          child: ListView(
+            primary: true,
+            shrinkWrap: false,
+            children: [
+              // buildSliderWidget(),
+              getVerSpace(20.h),
+              buildPopularPodcastList(),
+              getVerSpace(30.h),
+              buildLatestMusicList(),
+              getVerSpace(10.h),
+              // buildArtistList(),
+              getVerSpace(40.h),
+            ],
+          ),
+        )
+        // : SizedBox(
+        //     height: 100,
+        //     child: Center(
+        //       child: TextButton(
+        //           onPressed: () {
+        //             Permission.storage.request();
+        //             setState(() {
+        //               songController.isGranted.value = true;
+        //             });
+        //             print('permission granted');
+        //           },
+        //           child: const Text(
+        //             'Request Permission',
+        //             style: TextStyle(color: Colors.white),
+        //           )),
+        //     ),
+        //   ),
+      ],
     );
   }
 
@@ -228,28 +221,10 @@ class _TabHomeState extends State<TabHome> {
           ],
         ).paddingSymmetric(horizontal: 20.h),
         getVerSpace(20.h),
-        FutureBuilder<List<SongModel>>(
-          future: songController.checkPermission(),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<SongModel>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('No Songs available'),
-                    SizedBox(height: 20.h),
-                    ElevatedButton(
-                      onPressed: () async {
-                        songController.checkPermission();
-                      },
-                      child: const Text('Refresh'),
-                    ),
-                  ],
-                ),
-              );
+        Obx(
+          () {
+            if (playerController.songs.isEmpty) {
+              return const Text('No Songs available');
             } else {
               // return ListView.builder(
               //   padding: EdgeInsets.symmetric(horizontal: 20.h),
@@ -275,43 +250,45 @@ class _TabHomeState extends State<TabHome> {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 primary: false,
-                itemCount: snapshot.data != null && snapshot.data!.length > 40
+                itemCount: playerController.songs.length > 40
                     ? 40
-                    : snapshot.data?.length ?? 0,
+                    : playerController.songs.length ?? 0,
                 itemBuilder: (context, index) {
-                  SongModel song = snapshot.data![index];
+                  SongModel song = playerController.songs[index];
 
                   return GestureDetector(
                     onTap: () async {
                       playerController.currentIndex.value = index;
                       playerController.playingSong.value =
                           playerController.songs[index];
-                      Get.to(() =>
-                          MusicPlayer(songs: snapshot.data!, index: index));
+                      Get.to(() => MusicPlayer());
                     },
                     child: Container(
                       padding: EdgeInsets.all(12.h),
-                      margin: EdgeInsets.only(bottom: 20.h),
                       decoration: BoxDecoration(
-                          color: containerBg,
                           borderRadius: BorderRadius.circular(22.h)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            height: 76.h,
-                            width: 76.h,
+                            height: 60.h,
+                            width: 60.h,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(22.h),
-                              // image: DecorationImage(
-                              //     image: NetworkImage(song.photo!),
-                              //     fit: BoxFit.cover),
                             ),
                             child: QueryArtworkWidget(
                               artworkBorder: BorderRadius.circular(22.h),
                               id: song.id,
                               type: ArtworkType.AUDIO,
-                              // artworkQuality: 100,
+                              nullArtworkWidget: ClipRRect(
+                                borderRadius: BorderRadius.circular(22.h),
+                                child: Image.asset(
+                                  'assets/images/headphones.jpg', // Path to your asset imageA
+                                  fit: BoxFit.cover,
+                                  height: 60.h,
+                                  width: 60.h,
+                                ),
+                              ),
                             ),
                           ),
                           getHorSpace(12.h),
@@ -320,12 +297,12 @@ class _TabHomeState extends State<TabHome> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 getCustomFont(
-                                    song.title, 16.sp, Colors.white, 1,
+                                    song.title, 15.sp, Colors.white, 1,
                                     fontWeight: FontWeight.w700),
                                 getVerSpace(6.h),
                                 getCustomFont(
                                   "${song.artist}  ",
-                                  12.sp,
+                                  10.sp,
                                   searchHint,
                                   1,
                                   fontWeight: FontWeight.w400,
@@ -333,8 +310,12 @@ class _TabHomeState extends State<TabHome> {
                               ],
                             ),
                           ),
-                          getSvgImage("video_circle.svg",
-                              height: 34.h, width: 34.h),
+                          getHorSpace(12.h),
+                          const Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 30,
+                          ),
                         ],
                       ),
                     ),
@@ -371,48 +352,25 @@ class _TabHomeState extends State<TabHome> {
         getVerSpace(20.h),
         SizedBox(
           height: 188.h,
-          child: FutureBuilder<List<SongModel>>(
-            future: songController.checkPermission(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('No Podcasts available'),
-                      SizedBox(height: 20.h),
-                      ElevatedButton(
-                        onPressed: () async {
-                          songController.checkPermission();
-                        },
-                        child: const Text('Refresh'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-                else{
+          child: Obx(
+            () {
+              if (playerController.songs.isEmpty) {
+                return const Text('No Songs available');
+              } else {
                 return ListView.builder(
                   padding: EdgeInsets.zero,
                   primary: false,
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  itemCount: snapshot.data.length,
+                  itemCount: playerController.songs.length,
                   itemBuilder: (context, index) {
-                    SongModel popularSong = snapshot.data[index];
+                    SongModel popularSong = playerController.songs[index];
                     return GestureDetector(
-                      onTap: () {
-                        // Constant.sendToNext(
-                        //   context,
-                        //   Routes.musicDetailRoute,
-                        //   arguments: {
-                        //     'songs': songController.popularSongs,
-                        //     'currentIndex':
-                        //         index, // Passing the current song index
-                        //   },
-                        // );
+                      onTap: () async {
+                        playerController.currentIndex.value = index;
+                        playerController.playingSong.value =
+                            playerController.songs[index];
+                        Get.to(() => MusicPlayer());
                       },
                       child: Stack(
                         children: [
@@ -423,8 +381,16 @@ class _TabHomeState extends State<TabHome> {
                               artworkBorder: BorderRadius.circular(22.h),
                               id: popularSong.id,
                               type: ArtworkType.AUDIO,
-                              artworkFit: BoxFit
-                                  .cover, // Make the image fit the whole container
+                              artworkFit: BoxFit.cover,
+                              nullArtworkWidget: ClipRRect(
+                                borderRadius: BorderRadius.circular(22),
+                                child: Image.asset(
+                                  'assets/images/headphones.jpg', // Path to your asset image
+                                  fit: BoxFit.cover,
+                                  height: double.infinity,
+                                  width: double.infinity,
+                                ),
+                              ),
                             ),
                           ),
                           Positioned(
@@ -443,16 +409,16 @@ class _TabHomeState extends State<TabHome> {
                                           Colors.white, 1,
                                           fontWeight: FontWeight.w700),
                                       getVerSpace(1.h),
-                                      Row(
-                                        children: [
-                                          getCustomFont(
-                                            popularSong.artist!,
-                                            8.sp,
-                                            accentColor,
-                                            1,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ],
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 8.0),
+                                        child: getCustomFont(
+                                          popularSong.artist!,
+                                          8.sp,
+                                          Colors.white,
+                                          1,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       )
                                     ],
                                   ),

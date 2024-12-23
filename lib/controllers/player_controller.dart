@@ -12,6 +12,7 @@ class PlayerController extends GetxController {
   final AudioPlayer audioPlayer = AudioPlayer();
 
   var isPlaying = false.obs;
+  var initialIndex = 0.obs;
   var currentIndex = 0.obs;
   var isFavourite = false.obs;
   var isShuffle = false.obs;
@@ -19,33 +20,33 @@ class PlayerController extends GetxController {
   var generatedNumbers = <int>{}.obs;
   var playingSong = Rx<SongModel?>(null);
   Duration get currentPlaybackPosition => audioPlayer.position;
-  
 
   @override
   void onInit() {
     super.onInit();
-    // fetchSongs();
-    audioPlayer.playbackEventStream.listen((event) {
-      if (event.processingState == ProcessingState.completed) {
-        // Move to next song when the current song is finished
-        // playNextSong();
+    initPlayerListener();
+  }
+
+  void initPlayerListener() {
+    audioPlayer.playerStateStream.listen((playerState) {
+      if (playerState.processingState == ProcessingState.completed) {
+        playNextSong();
       }
     });
-    ;
   }
 
   Future<List<SongModel>> fetchSongs() async {
     songs.value = await OnAudioQuery().querySongs(
       ignoreCase: true,
-        orderType: OrderType.ASC_OR_SMALLER,
-        sortType: null,
-        uriType: UriType.EXTERNAL,
+      orderType: OrderType.ASC_OR_SMALLER,
+      sortType: null,
+      uriType: UriType.EXTERNAL,
     );
     // ignore: invalid_use_of_protected_member
     return songs.value;
   }
 
-// generate random index for shuffle
+  // generate random index for shuffle
   int generateUniqueRandomNumber(int range) {
     final random = Random();
     if (generatedNumbers.length == range) {
@@ -60,24 +61,21 @@ class PlayerController extends GetxController {
     return number;
   }
 
-//plat next Song
-
   void playNextSong() {
+    if (songs.isEmpty) return; // Guard clause for empty song list
+
     if (isShuffle.value) {
-      currentIndex.value = generateUniqueRandomNumber(songs.length);
+      initialIndex.value = generateUniqueRandomNumber(songs.length);
     } else {
-      if (currentIndex < songs.length - 1) {
-        currentIndex++;
+      if (initialIndex.value < songs.length - 1) {
+        initialIndex.value++;
       } else {
-        // Handle end of the list in original mode
-        return;
+        initialIndex.value = 0; // Loop back to the first song if end is reached
       }
     }
 
-    audioPlayer.stop();
-    playSong( songs[currentIndex.value].uri!);
     playingSong.value = songs[currentIndex.value];
-    isPlaying.value = true;
+    playSong(songs[currentIndex.value].uri!, initialIndex.value);
   }
 
   // Method to resume playback for a song
@@ -86,41 +84,44 @@ class PlayerController extends GetxController {
     await audioPlayer.play();
   }
 
-//play previous Song
+  // play previous Song
   void playPreviousSong() {
     if (isShuffle.value) {
-      if (currentIndex > 0) {
-        currentIndex--;
+      if (initialIndex > 0) {
+        initialIndex--;
       } else {
-        currentIndex.value = songs.length - 1;
+        initialIndex.value = songs.length - 1;
       }
     } else {
-      if (currentIndex > 0) {
-        currentIndex--;
+      if (initialIndex > 0) {
+        initialIndex--;
       }
     }
 
     audioPlayer.stop();
-    playSong( songs[currentIndex.value].uri!);
+    playSong(songs[currentIndex.value].uri!, initialIndex.value);
     playingSong.value = songs[currentIndex.value];
     isPlaying.value = true;
   }
 
-// Initialize the player listener
-  void initPlayerListener() {
-    audioPlayer.playerStateStream.listen((playerState) {
-      if (playerState.processingState == ProcessingState.completed) {
-        playNextSong();
-      }
-    });
-  }
-
-  // Play song from a URI or file path
-  playSong(String uri) {
+  Future<void> playSong(String? uri, int initialIndex) async {
+    isPlaying.value = true;
     try {
-      audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri)));
-      audioPlayer.play();
-      isPlaying.value = true;
+      if (currentIndex.value == initialIndex) {
+        // If the current index is equal to the initial index, resume from the current position
+        if (audioPlayer.position > Duration.zero) {
+          await audioPlayer.play();
+        } else {
+          await audioPlayer
+              .setAudioSource(AudioSource.uri(Uri.parse(uri ?? '')));
+          await audioPlayer.play();
+        }
+      } else {
+        // If the current index is not equal to the initial index, set the playing index to the initial index
+        currentIndex.value = initialIndex;
+        await audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri ?? '')));
+        await audioPlayer.play();
+      }
     } catch (e) {
       print("Error playing song: $e");
     }
@@ -134,17 +135,14 @@ class PlayerController extends GetxController {
 
   togglePlayPause() {
     if (audioPlayer.playing) {
+      isPlaying.value = false;
       audioPlayer.pause();
     } else {
       try {
-        if (audioPlayer.position == Duration.zero) {
-          audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(playingSong.value?.uri?? '')));
-        }
-        audioPlayer.play();
+        playSong(playingSong.value?.uri!, initialIndex.value);
       } on Exception catch (e) {
         print('Error: $e');
       }
     }
-    isPlaying.value = !isPlaying.value;
   }
 }

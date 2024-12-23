@@ -1,4 +1,3 @@
-
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +6,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/util/country_code_picker.dart';
 
+import '../controllers/player_controller.dart';
 import 'color_category.dart';
 import 'constant.dart';
+
+final OnAudioQuery audioQuery = OnAudioQuery();
 
 showToast(String s, BuildContext context) {
   if (s.isNotEmpty) {
@@ -41,7 +44,50 @@ Widget getAssetImage(String image,
     fit: boxFit,
   );
 }
+  Widget buildMusicImage(BuildContext context, double? borderRadius) {
+    PlayerController playerController = Get.put(PlayerController());
+    return Obx(
+      () {
+        return FutureBuilder<Uint8List?>(
+          future: _getArtwork(playerController.playingSong.value?.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasData && snapshot.data != null) {
+              return ClipRRect(
+                borderRadius: borderRadius != null
+                    ? BorderRadius.circular(borderRadius)
+                    : BorderRadius.zero,
+                child: Image.memory(
+                  snapshot.data!,
+                  fit: BoxFit.cover,
+                  height: double.infinity,
+                  width: double.infinity,
+                ),
+              );
+            } else {
+              return ClipRRect(
+                borderRadius: borderRadius != null
+                    ? BorderRadius.circular(borderRadius)
+                    : BorderRadius.zero,
+                child: Image.asset(
+                  'assets/images/headphones.jpg', // Path to your asset image
+                  fit: BoxFit.cover,
+                    height: double.infinity,
+                  width: double.infinity,
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
 
+  Future<Uint8List?> _getArtwork(int? id) async {
+    if (id == null) return null;
+    return await audioQuery.queryArtwork(id, ArtworkType.AUDIO);
+  }
 Widget getSvgImage(String image,
     {double? width,
     double? height,
@@ -645,16 +691,21 @@ Widget getToolbarWithIcon(Function function) {
 }
 
 Widget getAppBar(Function function, String title) {
-  return Row(
-    children: [
-      GestureDetector(
-          onTap: () {
-            function();
-          },
-          child: getSvgImage("arrow_back.svg", height: 24.h, width: 24.h)),
-      getHorSpace(20.h),
-      getCustomFont(title, 20.sp, Colors.white, 1, fontWeight: FontWeight.w700),
-    ],
+  return Container(
+    child: Row(
+      children: [
+        GestureDetector(
+            onTap: () {
+              function();
+            },
+            child: getSvgImage("arrow_back.svg", height: 24.h, width: 24.h)),
+        getHorSpace(20.h),
+        SizedBox(
+            width: 0.7.sw,
+            child: getCustomFont(title, 20.sp, Colors.white, 1,
+                fontWeight: FontWeight.w700)),
+      ],
+    ),
   );
 }
 
@@ -682,4 +733,7 @@ Widget getProfileWidget(Function function, String image, String name) {
       ],
     ),
   );
+
+
+  
 }

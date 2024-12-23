@@ -3,9 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PrefData {
   static const String _usernameKey = "username";
   static const String _idKey = "id";
-  static const String _signInKey = "isSignIn";
+  static const String _permission = "isPrermitted";
   static String isIntro = "${getUsername()}isIntro";
   static const String _email = "";
+
+  static Future<void> initializeDefaults() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_permission) == null) {
+      await prefs.setBool(_permission, false);
+    }
+  }
 
   static setIsIntro(bool sizes) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,15 +60,15 @@ class PrefData {
   }
 
   // Store login status as a boolean
-  static Future<void> setIsSignIn(bool isSignedIn) async {
+  static Future<void> setIsPermitted(bool isPermitted) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_signInKey, isSignedIn);
+    await prefs.setBool(_permission, isPermitted);
   }
 
   // Retrieve login status as a boolean
-  static Future<bool?> getIsSignIn() async {
+  static Future<bool?> getIsPermitted() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_signInKey);
+    return prefs.getBool(_permission);
   }
 
   // Clear all session data (e.g., on logout)
@@ -69,7 +76,7 @@ class PrefData {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_usernameKey);
     await prefs.remove(_idKey);
-    await prefs.remove(_signInKey);
+    await prefs.remove(_permission);
     await prefs.remove(_email);
   }
 

@@ -1,8 +1,7 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/util/constant_widget.dart';
@@ -10,10 +9,10 @@ import '../../util/color_category.dart';
 import '../../util/constant.dart';
 
 class MusicPlayer extends StatefulWidget {
-  List<SongModel> songs;
-  int index;
+  List<SongModel>? songs;
+  int? index;
 
-  MusicPlayer({super.key, required this.songs, required this.index});
+  MusicPlayer({super.key, this.songs, this.index});
 
   @override
   State<MusicPlayer> createState() => _MusicPlayerState();
@@ -21,7 +20,7 @@ class MusicPlayer extends StatefulWidget {
 
 class _MusicPlayerState extends State<MusicPlayer> {
   PlayerController playerController = Get.put(PlayerController());
-  late List<SongModel> shuffledSongs;
+  
 
   @override
   void initState() {
@@ -227,9 +226,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      playerController.currentIndex.value = widget.index;
-    });
+    // setState(() {
+    //   playerController.currentIndex.value = widget.index;
+    // });
 
     setStatusBarColor(bgDark);
     Constant.setupSize(context);
@@ -242,53 +241,63 @@ class _MusicPlayerState extends State<MusicPlayer> {
         resizeToAvoidBottomInset: false,
         backgroundColor: bgDark,
         body: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              getVerSpace(30.h),
-              Obx(() {
-                return getAppBar(() {
-                  backClick();
-                }, playerController.playingSong.value?.title ?? '');
-              }),
-              getVerSpace(40.h),
-              Expanded(
-                child: ListView(
-                  primary: true,
-                  shrinkWrap: false,
+              buildMusicImage(context, null),
+              Container(
+                color: bgDark.withOpacity(0.9),
+                child: Column(
                   children: [
-                    buildMusicPoster(),
-                    getVerSpace(20.h),
-                    buildMusicDetail(),
                     getVerSpace(30.h),
-                    buildPlaybackControls(),
-                    getVerSpace(30.h),
-                    buildPlaylistSection(),
-                    IconButton(
-                      icon: Icon(playerController.isShuffle.value
-                          ? Icons.shuffle_on
-                          : Icons.shuffle),
-                      onPressed: () {},
+                    Obx(() {
+                      return getAppBar(() {
+                        backClick();
+                      }, playerController.playingSong.value?.title ?? '');
+                    }),
+                    getVerSpace(40.h),
+                    Expanded(
+                      child: ListView(
+                        primary: true,
+                        shrinkWrap: false,
+                        children: [
+                          buildMusicPoster(),
+                          getVerSpace(5.h),
+                          getVerSpace(30.h),
+                          buildPlaybackControls(),
+                          getVerSpace(30.h),
+                          // buildPlaylistSection(),
+                          const Center(
+                            child: Text(
+                              'Lyrics',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
-                ),
+                ).paddingSymmetric(horizontal: 20.h),
               ),
             ],
-          ).paddingSymmetric(horizontal: 20.h),
+          ),
         ),
       ),
     );
   }
 
+
+
 // Inside your buildPlaybackControls method
   Widget buildPlaybackControls() {
     return Container(
       decoration: BoxDecoration(
-        color: containerBg,
+        color: accentColor,
         borderRadius: BorderRadius.circular(22.h),
       ),
       padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 20.h),
       child: Column(
         children: [
+          buildMusicDetail(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -327,7 +336,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                             playerController.audioPlayer
                                 .seek(Duration(milliseconds: value.toInt()));
                           },
-                          activeColor: accentColor,
+                          activeColor: Colors.white,
                           inactiveColor: Colors.grey,
                         ),
                       );
@@ -350,7 +359,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
               ),
             ],
           ),
-          getVerSpace(30.h),
+          // getVerSpace(5.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -390,7 +399,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
             children: [
               IconButton(
                 icon: playerController.isShuffle.value
-                    ? Icon(Icons.shuffle_on_outlined, color: accentColor)
+                    ? Icon(Icons.shuffle_on_outlined, color: Colors.white)
                     : Icon(Icons.shuffle, color: Colors.white),
                 onPressed: () {
                   setState(() {
@@ -405,7 +414,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.replay_5, color: accentColor),
+                icon: Icon(Icons.replay_5, color: Colors.white),
                 onPressed: () {
                   final currentPosition = playerController.audioPlayer.position;
                   if (currentPosition - Duration(seconds: 5) > Duration.zero) {
@@ -419,7 +428,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.forward_5, color: accentColor),
+                icon: Icon(Icons.forward_5, color: Colors.white),
                 onPressed: () {
                   final currentPosition = playerController.audioPlayer.position;
                   final duration = playerController.audioPlayer.duration;
@@ -438,7 +447,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 icon: playerController.isFavourite.value
                     ? Icon(
                         Icons.favorite,
-                        color: accentColor,
+                        color: Colors.white,
                       )
                     : const Icon(Icons.favorite_border, color: Colors.white),
                 onPressed: () {
@@ -571,26 +580,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
   }
 
   Widget buildMusicPoster() {
-    return SizedBox(
-      child: Container(
+    return Container(
         width: 260.h,
-        height: 260.h,
+        height: 290.h,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22.h),
+          borderRadius: BorderRadius.circular(2.h),
         ),
-        child: Obx(
-          () {
-            return QueryArtworkWidget(
-              id: playerController.playingSong.value?.id ?? 0,
-              type: ArtworkType.AUDIO,
-              artworkHeight: double.infinity,
-              artworkWidth: double.infinity,
-              nullArtworkWidget: const Icon(Icons.music_note),
-            );
-          },
-        ),
-      ),
-    );
+        child: buildMusicImage(context, 22));
   }
 
   // Widget buildPlayListButton(BuildContext context, int songId) {

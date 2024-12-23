@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 Color bgDark = "#110C0C".toColor();
-Color accentColor = "#6495ED".toColor();
+Color accentColor = "#490D0D".toColor();
 // ignore: non_constant_identifier_names
 Color select_color = "#1FFF9D9D".toColor();
 // ignore: non_constant_identifier_names

@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +14,8 @@ import '../model/bottom_model.dart';
 import '../util/color_category.dart';
 import '../util/constant.dart';
 import '../util/constant_widget.dart';
+import '../util/pref_data.dart';
+import 'player/music_player.dart';
 import 'tab/tab_home.dart';
 import '../dataFile/data_file.dart';
 
@@ -93,74 +96,81 @@ class _HomeScreenState extends State<HomeScreen> {
                   top: 0.h,
                   left: 0,
                   right: 0,
-                  child: Container(
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: accentColor
-                          .withOpacity(0.1)
-                          .withOpacity(0.8), // Adjusted color and opacity
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          offset: const Offset(0, -1),
-                          blurRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      onTap: () {
-                        // Constant.sendToNext(
-                        //   context,
-                        //   Routes.musicDetailRoute,
-                        //   arguments: {
-                        //     'songs': songController.popularSongs,
-                        //     'currentIndex': audioController.currentIndex.value,
-                        //   },
-                        // );
-                      },
-                      leading: Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Container(
-                          height: 70,
-                          padding: const EdgeInsets.only(bottom: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(22.h),
-                            // image: DecorationImage(
-                            //     image: NetworkImage(song.photo!),
-                            //     fit: BoxFit.cover),
-                          ),
-                          child: Obx(
-                            () {
-                              return
-                              QueryArtworkWidget(
-                                artworkBorder: BorderRadius.circular(22.h),
-                                id: playerController.playingSong.value!.id,
-                                type: ArtworkType.AUDIO,
-                                // artworkQuality: 100,
-                              );
-                            },
-                          ),
-                        ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(
+                        MusicPlayer(),
+                        transition: Transition.downToUp,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(6.h),
+                      margin: EdgeInsets.only(bottom: 10.h),
+                      decoration: BoxDecoration(
+                        color: accentColor.withOpacity(0.75),
+                        // borderRadius: BorderRadius.circular(22.h),
                       ),
-                      title: Text(
-                        playerController.playingSong.value!.artist ?? 'Unknown',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                      subtitle: Text(
-                          playerController.playingSong.value?.title ??
-                              'Unknown',
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.white)),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.pause, color: Colors.white),
-                        onPressed: () {
-                          // audioController.togglePlayPause();
-                        },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          getHorSpace(12.h),
+                          Container(
+                            height: 50.h,
+                            width: 50.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(11.h),
+                              // image: DecorationImage(
+                              //     image: NetworkImage(song.photo!),
+                              //     fit: BoxFit.cover),
+                            ),
+                            child: QueryArtworkWidget(
+                              artworkBorder: BorderRadius.circular(11.h),
+                              id: playerController.playingSong.value!.id,
+                              type: ArtworkType.AUDIO,
+                              // artworkQuality: 100,
+                            ),
+                          ),
+                          getHorSpace(12.h),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                getCustomFont(
+                                    playerController.playingSong.value!.title,
+                                    10.sp,
+                                    Colors.white,
+                                    1,
+                                    fontWeight: FontWeight.w700),
+                                getVerSpace(6.h),
+                                getCustomFont(
+                                  "${playerController.playingSong.value!.artist}  ",
+                                  8.sp,
+                                  searchHint,
+                                  1,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ],
+                            ),
+                          ),
+                          getHorSpace(12.h),
+                          // SizedBox(width: 20.h),
+
+                          Obx(() => IconButton(
+                                icon: Icon(
+                                  playerController.isPlaying.value
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  // size: 72.h,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  await playerController.togglePlayPause();
+                                },
+                              )),
+                          getHorSpace(20.h),
+                        ],
                       ),
                     ),
                   ),

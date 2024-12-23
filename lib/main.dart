@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:sound_mile/pages/home_screen.dart';
+import 'package:sound_mile/splash_screen.dart';
+import 'package:sound_mile/util/color_category.dart';
+import 'package:sound_mile/util/pref_data.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized() ;
+  await PrefData.initializeDefaults();
   runApp(const MyApp());
 }
 
@@ -13,12 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
         useMaterial3: true,
       ),
-      home: HomeScreen(),
+      home: const SplashScreen(),
+
     );
   }
 }
