@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/util/color_category.dart';
+import 'package:sound_mile/util/constant_widget.dart';
 import 'package:sound_mile/util/pref_data.dart';
 
 import 'pages/home_screen.dart';
@@ -50,20 +52,26 @@ class _PermissionPageState extends State<PermissionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgDark,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextButton(
-              onPressed: () async {
-                requestPermission();
-              },
-              child: Text('Allow'),
-            ),
-            SizedBox(height: 20),
-            const Text('Loading...', style: TextStyle(color: Colors.white)),
-          ],
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+        
+          getAssetImage('permission.png'),
+          SizedBox(height: 20),
+          Text(
+            'Sound Mile requires storage permission to access and play music.',
+            style: TextStyle(fontSize: 16, color: textColor),textAlign: TextAlign.center,
+          ),
+        const SizedBox(height:90),
+          FloatingActionButton.extended(
+            onPressed: () async {
+              requestPermission();
+            },
+            label: Text('Allow', style: TextStyle(color: accentColor
+            ),), 
+            icon: Icon(Icons.perm_media, color: accentColor,), 
+          ),
+          SizedBox(height: 20),],
       ),
     );
   }

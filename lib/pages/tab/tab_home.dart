@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/pages/player/music_player.dart';
@@ -67,9 +66,9 @@ class _TabHomeState extends State<TabHome> {
             children: [
               // buildSliderWidget(),
               getVerSpace(20.h),
-              buildPopularPodcastList(),
+              buildRecentMusicList(),
               getVerSpace(30.h),
-              buildLatestMusicList(),
+              buildAllMusicList(),
               getVerSpace(10.h),
               // buildArtistList(),
               getVerSpace(40.h),
@@ -203,7 +202,7 @@ class _TabHomeState extends State<TabHome> {
   //   );
   // }
 
-  Column buildLatestMusicList() {
+  Column buildAllMusicList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -211,11 +210,11 @@ class _TabHomeState extends State<TabHome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            getCustomFont("Latest Music", 18.sp, Colors.white, 1,
+            getCustomFont("AllS Music", 18.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
             GestureDetector(
               onTap: () {},
-              child: getCustomFont("View All", 12.sp, accentColor, 1,
+              child: getCustomFont("View All", 12.sp, textColor, 1,
                   fontWeight: FontWeight.w700),
             ),
           ],
@@ -246,13 +245,13 @@ class _TabHomeState extends State<TabHome> {
               //         );
               //       },
               return ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 20.h),
+                padding: EdgeInsets.only(right: 20.h, left: 6.h),
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 primary: false,
                 itemCount: playerController.songs.length > 40
                     ? 40
-                    : playerController.songs.length ?? 0,
+                    : playerController.songs.length,
                 itemBuilder: (context, index) {
                   SongModel song = playerController.songs[index];
 
@@ -296,8 +295,7 @@ class _TabHomeState extends State<TabHome> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                getCustomFont(
-                                    song.title, 15.sp, Colors.white, 1,
+                                getCustomFont(song.title, 15.sp, textColor, 1,
                                     fontWeight: FontWeight.w700),
                                 getVerSpace(6.h),
                                 getCustomFont(
@@ -311,9 +309,9 @@ class _TabHomeState extends State<TabHome> {
                             ),
                           ),
                           getHorSpace(12.h),
-                          const Icon(
+                          Icon(
                             Icons.play_arrow,
-                            color: Colors.white,
+                            color: textColor,
                             size: 30,
                           ),
                         ],
@@ -329,7 +327,7 @@ class _TabHomeState extends State<TabHome> {
     );
   }
 
-  Column buildPopularPodcastList() {
+  Column buildRecentMusicList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -337,14 +335,14 @@ class _TabHomeState extends State<TabHome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            getCustomFont("Popular Music", 18.sp, Colors.white, 1,
+            getCustomFont("Recently Added Music", 18.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
             GestureDetector(
               onTap: () {
                 // Constant.sendToNext(context, Routes.popularMusicListRoute,
                 //     arguments: songController);
               },
-              child: getCustomFont("View All", 12.sp, accentColor, 1,
+              child: getCustomFont("View All", 12.sp, textColor, 1,
                   fontWeight: FontWeight.w700),
             )
           ],
@@ -364,7 +362,14 @@ class _TabHomeState extends State<TabHome> {
                   scrollDirection: Axis.horizontal,
                   itemCount: playerController.songs.length,
                   itemBuilder: (context, index) {
-                    SongModel popularSong = playerController.songs[index];
+                    // sor the sond according to their date of Modification
+                    List<SongModel> popularSongs = playerController.songs
+                        .toList()
+                      ..sort(
+                          (a, b) => b.dateModified!.compareTo(a.dateModified!));
+
+                    // Get the song at the current index
+                    SongModel popularSong = popularSongs[index];
                     return GestureDetector(
                       onTap: () async {
                         playerController.currentIndex.value = index;
@@ -406,7 +411,7 @@ class _TabHomeState extends State<TabHome> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       getCustomFont(popularSong.title!, 16.sp,
-                                          Colors.white, 1,
+                                          textColor, 1,
                                           fontWeight: FontWeight.w700),
                                       getVerSpace(1.h),
                                       Padding(
@@ -549,23 +554,24 @@ class _TabHomeState extends State<TabHome> {
 
   Widget buildAppBar() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            getTwoRichText(
-              "",
-              accentColor,
-              FontWeight.w700,
-              22.sp,
-              "MFARIJI",
-              Colors.white,
-              FontWeight.w700,
-              22.sp,
-            )
-          ],
+        getTwoRichText(
+          "",
+          accentColor,
+          FontWeight.w700,
+          22.sp,
+          "Sound Mile",
+          textColor,
+          FontWeight.w700,
+          22.sp,
         ),
+        Icon(
+          Icons.notifications_none,
+          color: textColor,
+        )
+
         // GestureDetector(
         //     onTap: () {
         //       // Constant.sendToNext(context, Routes.myProfileScreenRoute);

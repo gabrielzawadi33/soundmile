@@ -1,8 +1,4 @@
-import 'dart:ffi';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -14,7 +10,6 @@ import '../model/bottom_model.dart';
 import '../util/color_category.dart';
 import '../util/constant.dart';
 import '../util/constant_widget.dart';
-import '../util/pref_data.dart';
 import 'player/music_player.dart';
 import 'tab/tab_home.dart';
 import '../dataFile/data_file.dart';
@@ -81,13 +76,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
+// bottom  Nav Bar
   buildBottomnavigation(
       HomeController controller, SongController audioController) {
     return Obx(
       () {
         return SizedBox(
-          height: (playerController.isPlaying.value) ? 120.h : 60.h,
+          height: (playerController.isPlaying.value) ? 60.h : 0.h,
           child: Stack(
             children: [
               if (playerController
@@ -175,63 +170,65 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              Positioned(
-                bottom: 0.h,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 60.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.black, // Adjusted color
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        offset: const Offset(0, -1),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: List.generate(bottomLists.length, (index) {
-                      ModelBottom modelBottom = bottomLists[index];
-                      return GestureDetector(
-                        onTap: () {
-                          controller.onChange(index.obs);
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              controller.index.value == index
-                                  ? modelBottom.selectImage
-                                  : modelBottom.image,
-                              size: 24.h,
-                              color: controller.index.value == index
-                                  ? Colors.blue
-                                  : Colors.grey,
-                            ),
-                            Visibility(
-                              visible: controller.index.value == index,
-                              child: getCustomFont(
-                                modelBottom.title,
-                                12.sp,
-                                accentColor,
-                                1,
-                                fontWeight: FontWeight.w700,
-                                txtHeight: 1.5.h,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ).paddingSymmetric(horizontal: 30.h),
-                ),
-              ),
+
+              //   //Bottom Tab BAr
+              // Positioned(
+              //   bottom: 0.h,
+              //   left: 0,
+              //   right: 0,
+              //   child: Container(
+              //     height: 60.h,
+              //     width: double.infinity,
+              //     decoration: BoxDecoration(
+              //       color: Colors.black, // Adjusted color
+              //       boxShadow: [
+              //         BoxShadow(
+              //           color: Colors.black.withOpacity(0.1),
+              //           offset: const Offset(0, -1),
+              //           blurRadius: 10,
+              //         ),
+              //       ],
+              //     ),
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //       crossAxisAlignment: CrossAxisAlignment.center,
+              //       children: List.generate(bottomLists.length, (index) {
+              //         ModelBottom modelBottom = bottomLists[index];
+              //         return GestureDetector(
+              //           onTap: () {
+              //             controller.onChange(index.obs);
+              //           },
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.center,
+              //             mainAxisAlignment: MainAxisAlignment.center,
+              //             children: [
+              //               Icon(
+              //                 controller.index.value == index
+              //                     ? modelBottom.selectImage
+              //                     : modelBottom.image,
+              //                 size: 24.h,
+              //                 color: controller.index.value == index
+              //                     ? Colors.blue
+              //                     : Colors.grey,
+              //               ),
+              //               Visibility(
+              //                 visible: controller.index.value == index,
+              //                 child: getCustomFont(
+              //                   modelBottom.title,
+              //                   12.sp,
+              //                   accentColor,
+              //                   1,
+              //                   fontWeight: FontWeight.w700,
+              //                   txtHeight: 1.5.h,
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         );
+              //       }),
+              //     ).paddingSymmetric(horizontal: 30.h),
+              //   ),
+              // ),
             ],
           ),
         );

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sound_mile/pages/home_screen.dart';
 import 'package:sound_mile/permission_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
+import 'package:sound_mile/util/constant_widget.dart';
 import 'package:sound_mile/util/pref_data.dart';
 
 import 'controllers/player_controller.dart';
@@ -43,13 +44,15 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return  Scaffold(
       backgroundColor: bgDark,
-      body: const Center(
+      body:  Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text('Loading...'),
+            SizedBox(
+              height: 150,
+              width: 150,
+              child: getSvgImage('mile.svg')),
+            // getCustomFont('Sound Mile', 12, textColor, 1),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +24,7 @@ showToast(String s, BuildContext context) {
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.black,
-        textColor: Colors.white,
+        textColor: textColor,
         fontSize: 12);
 
     // Toast.show(s, context,
@@ -191,61 +192,48 @@ Widget getSearchWidget(
         decoration: BoxDecoration(
             color: lightBg, borderRadius: BorderRadius.circular(22.h)),
         alignment: Alignment.centerLeft,
-        child: TextFormField(
-          onFieldSubmitted: onSubmit,
+        child: CupertinoTextField(
+          onSubmitted: onSubmit,
           readOnly: isReadonly,
           onTap: onTap,
           onChanged: onChanged,
-          validator: validator,
-          enabled: true,
           inputFormatters: inputFormatters,
           maxLines: (minLines) ? null : 1,
           controller: textEditingController,
-          obscuringCharacter: obscuringCharacter,
-          autofocus: false,
           obscureText: isPass,
-          showCursor: true,
           cursorColor: accentColor,
           maxLength: length,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
           style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w400,
               fontSize: 16.sp,
               fontFamily: Constant.fontsFamily),
-          decoration: InputDecoration(
-              counterText: "",
-              contentPadding: EdgeInsets.symmetric(
-                  vertical: vertical.h, horizontal: horizontal.h),
-              isDense: true,
-              filled: true,
-              suffixIconConstraints: BoxConstraints(
-                maxHeight: 24.h,
-              ),
-              border: InputBorder.none,
-              suffixIcon: withSufix == true
-                  ? GestureDetector(
-                      onTap: () {
-                        imagefunction!();
-                      },
-                      child: getSvgImage(suffiximage.toString(),
-                              width: 24.h, height: 24.h)
-                          .paddingOnly(right: 18.h))
-                  : null,
-              prefixIconConstraints: constraint,
-              prefixIcon: isprefix == true ? prefix : null,
-              hintText: s,
-              hintStyle: TextStyle(
-                  color: searchHint,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16.sp,
-                  fontFamily: Constant.fontsFamily)),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22.h),
+              color: lightBg),
+          padding: EdgeInsets.symmetric(
+              vertical: vertical.h, horizontal: horizontal.h),
+          suffix: withSufix == true
+              ? GestureDetector(
+                  onTap: () {
+                    imagefunction!();
+                  },
+                  child: getSvgImage(suffiximage.toString(),
+                          width: 24.h, height: 24.h)
+                      .paddingOnly(right: 18.h))
+              : null,
+          prefix: isprefix == true ? prefix : null,
+          placeholder: s,
+          placeholderStyle: TextStyle(
+              color: searchHint,
+              fontWeight: FontWeight.w400,
+              fontSize: 16.sp,
+              fontFamily: Constant.fontsFamily),
         ),
       );
     },
   );
 }
-
 Widget getTwoRichText(
     String firstText,
     Color firstColor,
@@ -702,7 +690,7 @@ Widget getAppBar(Function function, String title) {
         getHorSpace(20.h),
         SizedBox(
             width: 0.7.sw,
-            child: getCustomFont(title, 20.sp, Colors.white, 1,
+            child: getCustomFont(title, 20.sp, textColor, 1,
                 fontWeight: FontWeight.w700)),
       ],
     ),

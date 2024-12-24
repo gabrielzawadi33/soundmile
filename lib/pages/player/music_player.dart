@@ -20,7 +20,6 @@ class MusicPlayer extends StatefulWidget {
 
 class _MusicPlayerState extends State<MusicPlayer> {
   PlayerController playerController = Get.put(PlayerController());
-  
 
   @override
   void initState() {
@@ -266,10 +265,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
                           buildPlaybackControls(),
                           getVerSpace(30.h),
                           // buildPlaylistSection(),
-                          const Center(
+                          Center(
                             child: Text(
                               'Lyrics',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: textColor),
                             ),
                           ),
                         ],
@@ -284,8 +283,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
       ),
     );
   }
-
-
 
 // Inside your buildPlaybackControls method
   Widget buildPlaybackControls() {
@@ -309,8 +306,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   final minutes = position.inMinutes.toString().padLeft(2, '0');
                   final seconds =
                       (position.inSeconds % 60).toString().padLeft(2, '0');
-                  return getCustomFont(
-                      "$minutes:$seconds", 13.sp, Colors.white, 1,
+                  return getCustomFont("$minutes:$seconds", 13.sp, textColor, 1,
                       fontWeight: FontWeight.w700);
                 },
               ),
@@ -336,7 +332,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                             playerController.audioPlayer
                                 .seek(Duration(milliseconds: value.toInt()));
                           },
-                          activeColor: Colors.white,
+                          activeColor: textColor,
                           inactiveColor: Colors.grey,
                         ),
                       );
@@ -352,8 +348,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   final minutes = duration.inMinutes.toString().padLeft(2, '0');
                   final seconds =
                       (duration.inSeconds % 60).toString().padLeft(2, '0');
-                  return getCustomFont(
-                      "$minutes:$seconds", 14.sp, Colors.white, 1,
+                  return getCustomFont("$minutes:$seconds", 14.sp, textColor, 1,
                       fontWeight: FontWeight.w700);
                 },
               ),
@@ -364,7 +359,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: Icon(Icons.skip_previous, color: Colors.white),
+                icon: Icon(Icons.skip_previous, color: textColor),
                 iconSize: 42.h,
                 onPressed: () {
                   playerController.playPreviousSong();
@@ -377,7 +372,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                           ? Icons.pause
                           : Icons.play_arrow,
                       size: 72.h,
-                      color: Colors.white,
+                      color: textColor,
                     ),
                     onPressed: () async {
                       await playerController.togglePlayPause();
@@ -385,8 +380,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   )),
               getHorSpace(40.h),
               IconButton(
-                icon: Icon(Icons.skip_next_sharp,
-                    color: Colors.white, size: 42.h),
+                icon: Icon(Icons.skip_next_sharp, color: textColor, size: 42.h),
                 iconSize: 42.h,
                 onPressed: () {
                   playerController.playNextSong();
@@ -399,8 +393,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
             children: [
               IconButton(
                 icon: playerController.isShuffle.value
-                    ? Icon(Icons.shuffle_on_outlined, color: Colors.white)
-                    : Icon(Icons.shuffle, color: Colors.white),
+                    ? Icon(Icons.shuffle_on_outlined, color: textColor)
+                    : Icon(Icons.shuffle, color: textColor),
                 onPressed: () {
                   setState(() {
                     playerController.isShuffle.value =
@@ -414,7 +408,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.replay_5, color: Colors.white),
+                icon: Icon(Icons.replay_5, color: textColor),
                 onPressed: () {
                   final currentPosition = playerController.audioPlayer.position;
                   if (currentPosition - Duration(seconds: 5) > Duration.zero) {
@@ -428,7 +422,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.forward_5, color: Colors.white),
+                icon: Icon(Icons.forward_5, color: textColor),
                 onPressed: () {
                   final currentPosition = playerController.audioPlayer.position;
                   final duration = playerController.audioPlayer.duration;
@@ -447,9 +441,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 icon: playerController.isFavourite.value
                     ? Icon(
                         Icons.favorite,
-                        color: Colors.white,
+                        color: textColor,
                       )
-                    : const Icon(Icons.favorite_border, color: Colors.white),
+                    : Icon(Icons.favorite_border, color: textColor),
                 onPressed: () {
                   setState(() {
                     playerController.isFavourite.value =
@@ -562,7 +556,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
       children: [
         Obx(() {
           return getCustomFont(playerController.playingSong.value?.title ?? "",
-              22.sp, Colors.white, 1,
+              18.sp, textColor, 1,
               fontWeight: FontWeight.w700);
         }),
         getVerSpace(2.h),
@@ -570,7 +564,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
           () {
             return getMultilineCustomFont(
                 playerController.playingSong.value?.artist ?? '',
-                16.sp,
+                12.sp,
                 hintColor,
                 fontWeight: FontWeight.w400);
           },
