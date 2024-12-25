@@ -210,7 +210,7 @@ class _TabHomeState extends State<TabHome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            getCustomFont("AllS Music", 18.sp, textColor, 1,
+            getCustomFont("All Music", 18.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
             GestureDetector(
               onTap: () {},

@@ -120,11 +120,25 @@ class _HomeScreenState extends State<HomeScreen> {
                               //     image: NetworkImage(song.photo!),
                               //     fit: BoxFit.cover),
                             ),
-                            child: QueryArtworkWidget(
-                              artworkBorder: BorderRadius.circular(11.h),
-                              id: playerController.playingSong.value!.id,
+                            // child: QueryArtworkWidget(
+                            //   artworkBorder: BorderRadius.circular(11.h),
+                            //   id: playerController.playingSong.value!.id,
+                            //   type: ArtworkType.AUDIO,
+                            //   // artworkQuality: 100,
+                            // ),
+                               child: QueryArtworkWidget(
+                              artworkBorder: BorderRadius.circular(22.h),
+                              id:playerController.playingSong.value!.id,
                               type: ArtworkType.AUDIO,
-                              // artworkQuality: 100,
+                              nullArtworkWidget: ClipRRect(
+                                borderRadius: BorderRadius.circular(22.h),
+                                child: Image.asset(
+                                  'assets/images/headphones.jpg', // Path to your asset imageA
+                                  fit: BoxFit.cover,
+                                  height: 60.h,
+                                  width: 60.h,
+                                ),
+                              ),
                             ),
                           ),
                           getHorSpace(12.h),
