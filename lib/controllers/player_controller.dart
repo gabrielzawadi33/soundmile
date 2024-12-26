@@ -1,8 +1,12 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:path_provider/path_provider.dart';
 
 class PlayerController extends GetxController {
   static final PlayerController _instance = PlayerController._internal();
@@ -62,20 +66,17 @@ class PlayerController extends GetxController {
   }
 
   void playNextSong() {
-    if (songs.isEmpty) return; // Guard clause for empty song list
-
     if (isShuffle.value) {
-      initialIndex.value = generateUniqueRandomNumber(songs.length);
+      currentIndex.value = generateUniqueRandomNumber(songs.length);
     } else {
-      if (initialIndex.value < songs.length - 1) {
-        initialIndex.value++;
+      if (currentIndex.value < songs.length - 1) {
+        currentIndex.value++;
       } else {
-        initialIndex.value = 0; // Loop back to the first song if end is reached
+        currentIndex.value = 0; // Loop back to the first song if end is reached
       }
     }
-
     playingSong.value = songs[currentIndex.value];
-    playSong(songs[currentIndex.value].uri!, initialIndex.value);
+    playSong(songs[currentIndex.value].uri!, currentIndex.value);
   }
 
   // Method to resume playback for a song
@@ -87,40 +88,51 @@ class PlayerController extends GetxController {
   // play previous Song
   void playPreviousSong() {
     if (isShuffle.value) {
-      if (initialIndex > 0) {
-        initialIndex--;
-      } else {
-        initialIndex.value = songs.length - 1;
-      }
+      currentIndex.value = generateUniqueRandomNumber(songs.length);
     } else {
-      if (initialIndex > 0) {
-        initialIndex--;
+      if (currentIndex.value > 0) {
+        currentIndex.value--;
+      } else {
+        currentIndex.value =
+            songs.length - 1; // Loop back to the last song if start is reached
       }
     }
-
-    audioPlayer.stop();
-    playSong(songs[currentIndex.value].uri!, initialIndex.value);
     playingSong.value = songs[currentIndex.value];
-    isPlaying.value = true;
+    playSong(songs[currentIndex.value].uri!, currentIndex.value);
   }
 
   Future<void> playSong(String? uri, int initialIndex) async {
     isPlaying.value = true;
     try {
-      if (currentIndex.value == initialIndex) {
-        // If the current index is equal to the initial index, resume from the current position
-        if (audioPlayer.position > Duration.zero) {
-          await audioPlayer.play();
-        } else {
-          await audioPlayer
-              .setAudioSource(AudioSource.uri(Uri.parse(uri ?? '')));
-          await audioPlayer.play();
+      currentIndex.value = initialIndex;
+      if (playingSong.value != null) {
+                // Fetch the artwork for the current song
+       final Uint8List? artwork = await OnAudioQuery().queryArtwork(
+          playingSong.value!.id,
+          ArtworkType.AUDIO,
+        );
+        
+      String? artworkUri;
+        if (artwork != null) {
+          final tempDir = await getTemporaryDirectory();
+          final file = await File('${tempDir.path}/${playingSong.value!.id}.jpg').writeAsBytes(artwork);
+          artworkUri = file.uri.toString();
         }
-      } else {
-        // If the current index is not equal to the initial index, set the playing index to the initial index
-        currentIndex.value = initialIndex;
-        await audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(uri ?? '')));
+        await audioPlayer.setAudioSource(
+          AudioSource.uri(
+            Uri.parse(uri ?? ''),
+            tag: MediaItem(
+              id: playingSong.value!.id.toString(),
+              album: playingSong.value!.album ?? 'Unknown Album',
+              title: playingSong.value!.displayName,
+              artist: playingSong.value!.artist ?? 'Unknown Artist',
+              artUri:artworkUri != null ? Uri.parse(artworkUri) : null,
+            ),
+          ),
+        );
         await audioPlayer.play();
+      } else {
+        print('Error: playingSong.value is null');
       }
     } catch (e) {
       print("Error playing song: $e");
@@ -139,7 +151,7 @@ class PlayerController extends GetxController {
       audioPlayer.pause();
     } else {
       try {
-        playSong(playingSong.value?.uri!, initialIndex.value);
+        playSong(playingSong.value?.uri!, currentIndex.value);
       } on Exception catch (e) {
         print('Error: $e');
       }

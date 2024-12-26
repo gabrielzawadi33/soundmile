@@ -257,10 +257,13 @@ class _TabHomeState extends State<TabHome> {
 
                   return GestureDetector(
                     onTap: () async {
-                      playerController.currentIndex.value = index;
+                      playerController.initialIndex.value = index;
                       playerController.playingSong.value =
                           playerController.songs[index];
-                      Get.to(() => MusicPlayer());
+                      playerController.playSong(
+                          playerController.playingSong.value?.uri!,
+                          playerController.initialIndex.value);
+                      // Get.to(() => MusicPlayer());
                     },
                     child: Container(
                       padding: EdgeInsets.all(12.h),

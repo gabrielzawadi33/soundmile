@@ -49,6 +49,7 @@ dependencies:
   universal_platform: ^1.1.0
   audio_service: ^0.18.15
   palette_generator: ^0.3.3+4
+  just_audio_background: ^0.0.1-beta.13
 
 dev_dependencies:
   flutter_test:
