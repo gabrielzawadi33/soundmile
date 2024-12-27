@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/util/constant_widget.dart';
@@ -24,8 +25,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
   @override
   void initState() {
     super.initState();
-    // playerController.songs.value = widget.songs;
-    // playerController.currentIndex.value = widget.index;
   }
 
   // late int currentIndex;
@@ -244,7 +243,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
             children: [
               buildMusicImage(context, null),
               Container(
-                color: bgDark.withOpacity(0.9),
+                decoration: BoxDecoration(
+                  color: bgDark.withOpacity(0.9),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(22.h),
+                    topRight: Radius.circular(22.h),
+                  ),
+                ),
                 child: Column(
                   children: [
                     getVerSpace(30.h),
@@ -265,12 +270,12 @@ class _MusicPlayerState extends State<MusicPlayer> {
                           buildPlaybackControls(),
                           getVerSpace(30.h),
                           // buildPlaylistSection(),
-                          Center(
-                            child: Text(
-                              'Lyrics',
-                              style: TextStyle(color: textColor),
-                            ),
-                          ),
+                          // Center(
+                          //   child: Text(
+                          //     'Lyrics',
+                          //     style: TextStyle(color: textColor),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),

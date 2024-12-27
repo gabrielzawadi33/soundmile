@@ -61,7 +61,7 @@ Widget getAssetImage(String image,
                     : BorderRadius.zero,
                 child: Image.memory(
                   snapshot.data!,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   height: double.infinity,
                   width: double.infinity,
                 ),

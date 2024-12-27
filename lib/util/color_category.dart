@@ -9,6 +9,7 @@ Color select_color = "#1FFF9D9D".toColor();
 // ignore: non_constant_identifier_names
 Color unselect_color = "#211E1E".toColor();
 Color dividerColor = "#454545".toColor();
+Color secondaryColor ='#A28B55'.toColor();
 // Color hintColor = "#DFDFDF".toColor();
 Color hintColor = Colors.grey.shade700;
 Color lightBg = "#303030".toColor();
