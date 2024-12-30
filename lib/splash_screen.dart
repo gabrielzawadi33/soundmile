@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
       
       
     } else {
-      await Future.delayed(const Duration(seconds:1));
+      await Future.delayed(const Duration(seconds:3));
       await PlayerController().fetchSongs();
       Get.to(HomeScreen());
     }

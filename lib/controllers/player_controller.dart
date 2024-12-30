@@ -21,7 +21,11 @@ class PlayerController extends GetxController {
   var currentIndex = 0.obs;
   var isFavourite = false.obs;
   var isShuffle = false.obs;
-  var songs = <ExtendedSongModel>[].obs;
+  var isReversed = false.obs;
+  var allSongs = <ExtendedSongModel>[].obs;
+  var recentSongs = <ExtendedSongModel>[].obs;
+  var playList = <ExtendedSongModel>[].obs;
+
   var generatedNumbers = <int>{}.obs;
   var playingSong = Rx<ExtendedSongModel?>(null);
   var artworkUri = Rx<Uri?>(null);
@@ -42,9 +46,9 @@ class PlayerController extends GetxController {
     });
     ;
     audioPlayer.currentIndexStream.listen((index) {
-      if (index != null && index < songs.length) {
+      if (index != null && index < playList.length) {
         currentIndex.value = index;
-        playingSong.value = songs[index];
+        playingSong.value = playList[index];
       }
     });
   }
@@ -64,10 +68,14 @@ class PlayerController extends GetxController {
       String? artworkUriString = await fetchArtworkUri(song.id);
       Uri? artworkUri =
           artworkUriString != null ? Uri.parse(artworkUriString) : null;
-      songs.add(ExtendedSongModel.fromSongModel(song, artworkUri));
+      allSongs.add(ExtendedSongModel.fromSongModel(song, artworkUri));
     }
+    List<ExtendedSongModel> sortedSongs = List.from(allSongs)
+      ..sort((a, b) => b.dateModified!.compareTo(a.dateModified!));
 
-    return songs;
+// Get the first 5 items from the sorted list
+    recentSongs.value = sortedSongs.take(20).toList();
+    return allSongs;
   }
 
   int generateUniqueRandomNumber(int range) {
@@ -85,9 +93,9 @@ class PlayerController extends GetxController {
 
   void playNextSong() {
     if (isShuffle.value) {
-      currentIndex.value = generateUniqueRandomNumber(songs.length);
+      currentIndex.value = generateUniqueRandomNumber(playList.length);
     } else {
-      if (currentIndex.value < songs.length - 1) {
+      if (currentIndex.value < playList.length - 1) {
         currentIndex.value++;
       } else {
         currentIndex.value = 0;
@@ -97,7 +105,7 @@ class PlayerController extends GetxController {
   }
 
   void playCurrentSong() async {
-    playingSong.value = songs[currentIndex.value];
+    playingSong.value = playList[currentIndex.value];
 
     songList[currentIndex.value] = AudioSource.uri(
       Uri.parse(playingSong.value!.uri!),
@@ -119,12 +127,12 @@ class PlayerController extends GetxController {
 
   void playPreviousSong() {
     if (isShuffle.value) {
-      currentIndex.value = generateUniqueRandomNumber(songs.length);
+      currentIndex.value = generateUniqueRandomNumber(playList.length);
     } else {
       if (currentIndex.value > 0) {
         currentIndex.value--;
       } else {
-        currentIndex.value = songs.length - 1;
+        currentIndex.value = playList.length - 1;
       }
     }
     playCurrentSong();
@@ -150,7 +158,7 @@ class PlayerController extends GetxController {
     try {
       currentIndex.value = initialIndex;
       if (playingSong.value != null) {
-        for (var song in songs) {
+        for (var song in playList) {
           songList.add(
             AudioSource.uri(
               Uri.parse(song.uri!),

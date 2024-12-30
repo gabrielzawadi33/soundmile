@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
+import 'package:sound_mile/model/extended_song_model.dart';
 import 'package:sound_mile/pages/player/music_player.dart';
 
 import '../../controllers/home_conroller.dart';
@@ -222,7 +223,7 @@ class _TabHomeState extends State<TabHome> {
         getVerSpace(20.h),
         Obx(
           () {
-            if (playerController.songs.isEmpty) {
+            if (playerController.allSongs.isEmpty) {
               return const Text('No Songs available');
             } else {
               // return ListView.builder(
@@ -249,17 +250,19 @@ class _TabHomeState extends State<TabHome> {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 primary: false,
-                itemCount: playerController.songs.length > 40
+                itemCount: playerController.allSongs.length > 40
                     ? 40
-                    : playerController.songs.length,
+                    : playerController.allSongs.length,
                 itemBuilder: (context, index) {
-                  SongModel song = playerController.songs[index];
+                  SongModel song = playerController.allSongs[index];
 
                   return GestureDetector(
                     onTap: () async {
+                      playerController.playList.value =
+                          playerController.allSongs;
                       playerController.initialIndex.value = index;
                       playerController.playingSong.value =
-                          playerController.songs[index];
+                          playerController.allSongs[index];
                       playerController.playSong(
                           playerController.playingSong.value?.uri!,
                           playerController.initialIndex.value);
@@ -355,7 +358,7 @@ class _TabHomeState extends State<TabHome> {
           height: 188.h,
           child: Obx(
             () {
-              if (playerController.songs.isEmpty) {
+              if (playerController.allSongs.isEmpty) {
                 return const Text('No Songs available');
               } else {
                 return ListView.builder(
@@ -363,22 +366,25 @@ class _TabHomeState extends State<TabHome> {
                   primary: false,
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  itemCount: playerController.songs.length,
+                  itemCount: playerController.recentSongs.length > 20
+                      ? 20
+                      : playerController.recentSongs.length,
                   itemBuilder: (context, index) {
                     // sor the sond according to their date of Modification
-                    List<SongModel> popularSongs = playerController.songs
-                        .toList()
-                      ..sort(
-                          (a, b) => b.dateModified!.compareTo(a.dateModified!));
+                    List<ExtendedSongModel> popularSongs =
+                        playerController.recentSongs;
 
                     // Get the song at the current index
-                    SongModel popularSong = popularSongs[index];
+                    ExtendedSongModel popularSong = popularSongs[index];
                     return GestureDetector(
                       onTap: () async {
+                        playerController.playList.value = popularSongs;
                         playerController.currentIndex.value = index;
-                        playerController.playingSong.value =
-                            playerController.songs[index];
-                        Get.to(() => MusicPlayer());
+                        playerController.playingSong.value = popularSong;
+                        playerController.playSong(
+                            playerController.playingSong.value?.uri!,
+                            playerController.currentIndex.value);
+                        // Get.to(() => MusicPlayer());
                       },
                       child: Stack(
                         children: [
