@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
@@ -238,52 +237,54 @@ class _MusicPlayerState extends State<MusicPlayer> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: bgDark,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              buildMusicImage(context, null),
-              Container(
-                decoration: BoxDecoration(
-                  color: bgDark.withOpacity(0.9),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(22.h),
-                    topRight: Radius.circular(22.h),
-                  ),
+        body: Stack(
+          children: [
+            buildMusicImage(
+              context,
+              0.0,
+              boxFit: BoxFit.fitHeight, // Example BoxFit
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: bgDark.withOpacity(0.9),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(22.h),
+                  topRight: Radius.circular(22.h),
                 ),
-                child: Column(
-                  children: [
-                    getVerSpace(30.h),
-                    Obx(() {
-                      return getAppBar(() {
-                        backClick();
-                      }, playerController.playingSong.value?.title ?? '');
-                    }),
-                    getVerSpace(40.h),
-                    Expanded(
-                      child: ListView(
-                        primary: true,
-                        shrinkWrap: false,
-                        children: [
-                          buildMusicPoster(),
-                          getVerSpace(5.h),
-                          getVerSpace(30.h),
-                          buildPlaybackControls(),
-                          getVerSpace(30.h),
-                          // buildPlaylistSection(),
-                          // Center(
-                          //   child: Text(
-                          //     'Lyrics',
-                          //     style: TextStyle(color: textColor),
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ).paddingSymmetric(horizontal: 20.h),
               ),
-            ],
-          ),
+              child: Column(
+                children: [
+                  getVerSpace(50.h),
+                  Obx(() {
+                    return getAppBar(() {
+                      backClick();
+                    }, playerController.playingSong.value?.title ?? '');
+                  }),
+                  getVerSpace(40.h),
+                  Expanded(
+                    child: ListView(
+                      primary: true,
+                      shrinkWrap: false,
+                      children: [
+                        buildMusicPoster(),
+                        getVerSpace(5.h),
+                        getVerSpace(30.h),
+                        buildPlaybackControls(),
+                        getVerSpace(30.h),
+                        // buildPlaylistSection(),
+                        // Center(
+                        //   child: Text(
+                        //     'Lyrics',
+                        //     style: TextStyle(color: textColor),
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ),
+                ],
+              ).paddingSymmetric(horizontal: 20.h),
+            ),
+          ],
         ),
       ),
     );
@@ -427,38 +428,19 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.forward_5, color: textColor),
-                onPressed: () {
-                  final currentPosition = playerController.audioPlayer.position;
-                  final duration = playerController.audioPlayer.duration;
-                  if (currentPosition + const Duration(seconds: 5) <
-                      duration!) {
-                    playerController.audioPlayer
-                        .seek(currentPosition + const Duration(seconds: 5));
-                    showToast("Forward 5 seconds", context);
-                  } else {
-                    playerController.audioPlayer.seek(duration);
-                    showToast("Reached end of song", context);
+                icon: Obx(() {
+                  switch (playerController.loopMode.value) {
+                    case LoopMode.one:
+                      return Icon(Icons.repeat_one, color: textColor);
+                    case LoopMode.all:
+                      return Icon(Icons.repeat, color: textColor);
+                    default: // LoopMode.off
+                      return Icon(Icons.repeat,
+                          color: textColor.withOpacity(0.5));
                   }
-                },
-              ),
-              IconButton(
-                icon: playerController.isFavourite.value
-                    ? Icon(
-                        Icons.favorite,
-                        color: textColor,
-                      )
-                    : Icon(Icons.favorite_border, color: textColor),
+                }),
                 onPressed: () {
-                  setState(() {
-                    playerController.isFavourite.value =
-                        !playerController.isFavourite.value;
-                  });
-                  if (playerController.isFavourite.value) {
-                    showToast("Added to favourite", context);
-                  } else {
-                    showToast("Removed from favourite", context);
-                  }
+                  playerController.toggleLoopMode();
                 },
               ),
             ],
@@ -585,15 +567,19 @@ class _MusicPlayerState extends State<MusicPlayer> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2.h),
         ),
-        child: buildMusicImage(context, 22));
-  }
+        child: buildMusicImage(
+          context,
+          10.0, // Example border radius
+          boxFit: BoxFit.cover, // Example BoxFit
+        ));
 
-  // Widget buildPlayListButton(BuildContext context, int songId) {
-  //   return getButton(context, accentColor, "Add To Playlist", Colors.black, () {
-  //     _showPlaylistDialog(context, songId);
-  //   }, 18.sp,
-  //       weight: FontWeight.w700,
-  //       buttonHeight: 60.h,
-  //       borderRadius: BorderRadius.circular(12.h));
-  // }
+    // Widget buildPlayListButton(BuildContext context, int songId) {
+    //   return getButton(context, accentColor, "Add To Playlist", Colors.black, () {
+    //     _showPlaylistDialog(context, songId);
+    //   }, 18.sp,
+    //       weight: FontWeight.w700,
+    //       buttonHeight: 60.h,
+    //       borderRadius: BorderRadius.circular(12.h));
+    // }
+  }
 }

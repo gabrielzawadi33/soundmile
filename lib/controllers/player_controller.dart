@@ -25,6 +25,7 @@ class PlayerController extends GetxController {
   var allSongs = <ExtendedSongModel>[].obs;
   var recentSongs = <ExtendedSongModel>[].obs;
   var playList = <ExtendedSongModel>[].obs;
+  var loopMode = LoopMode.off.obs;
 
   var generatedNumbers = <int>{}.obs;
   var playingSong = Rx<ExtendedSongModel?>(null);
@@ -40,11 +41,12 @@ class PlayerController extends GetxController {
 
   void initPlayerListener() {
     audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
+      if (state.processingState == ProcessingState.completed &&
+          loopMode.value == LoopMode.off) {
         playNextSong();
       }
     });
-    ;
+
     audioPlayer.currentIndexStream.listen((index) {
       if (index != null && index < playList.length) {
         currentIndex.value = index;
@@ -54,7 +56,6 @@ class PlayerController extends GetxController {
   }
 
   Future<List<ExtendedSongModel>> fetchSongs() async {
-    // Fetch songs using OnAudioQuery.
     List<SongModel> fetchedSongs = await OnAudioQuery().querySongs(
       ignoreCase: true,
       orderType: OrderType.ASC_OR_SMALLER,
@@ -62,18 +63,16 @@ class PlayerController extends GetxController {
       uriType: UriType.EXTERNAL,
     );
 
-    // Transform each SongModel into ExtendedSongModel by fetching its artwork URI.
-
     for (var song in fetchedSongs) {
       String? artworkUriString = await fetchArtworkUri(song.id);
       Uri? artworkUri =
           artworkUriString != null ? Uri.parse(artworkUriString) : null;
       allSongs.add(ExtendedSongModel.fromSongModel(song, artworkUri));
     }
+
     List<ExtendedSongModel> sortedSongs = List.from(allSongs)
       ..sort((a, b) => b.dateModified!.compareTo(a.dateModified!));
 
-// Get the first 5 items from the sorted list
     recentSongs.value = sortedSongs.take(20).toList();
     return allSongs;
   }
@@ -122,6 +121,7 @@ class PlayerController extends GetxController {
       initialIndex: currentIndex.value,
     );
 
+    await audioPlayer.setLoopMode(loopMode.value);
     await audioPlayer.play();
   }
 
@@ -178,10 +178,21 @@ class PlayerController extends GetxController {
         );
 
         await audioPlayer.play();
-      } else {}
+      }
     } catch (e) {
       print("Error playing song: $e");
     }
+  }
+
+  void toggleLoopMode() {
+    if (loopMode.value == LoopMode.off) {
+      loopMode.value = LoopMode.one;
+    } else if (loopMode.value == LoopMode.one) {
+      loopMode.value = LoopMode.all;
+    } else {
+      loopMode.value = LoopMode.off;
+    }
+    audioPlayer.setLoopMode(loopMode.value);
   }
 
   @override
@@ -189,8 +200,7 @@ class PlayerController extends GetxController {
     audioPlayer.dispose();
     super.onClose();
   }
-
-  togglePlayPause() {
+ togglePlayPause() {
     if (audioPlayer.playing) {
       isPlaying.value = false;
       audioPlayer.pause();

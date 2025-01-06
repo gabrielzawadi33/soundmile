@@ -45,50 +45,53 @@ Widget getAssetImage(String image,
     fit: boxFit,
   );
 }
-  Widget buildMusicImage(BuildContext context, double? borderRadius) {
-    PlayerController playerController = Get.put(PlayerController());
-    return Obx(
-      () {
-        return FutureBuilder<Uint8List?>(
-          future: _getArtwork(playerController.playingSong.value?.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasData && snapshot.data != null) {
-              return ClipRRect(
-                borderRadius: borderRadius != null
-                    ? BorderRadius.circular(borderRadius)
-                    : BorderRadius.zero,
-                child: Image.memory(
-                  snapshot.data!,
-                  fit: BoxFit.fill,
-                  height: double.infinity,
-                  width: double.infinity,
-                ),
-              );
-            } else {
-              return ClipRRect(
-                borderRadius: borderRadius != null
-                    ? BorderRadius.circular(borderRadius)
-                    : BorderRadius.zero,
-                child: Image.asset(
-                  'assets/images/headphones.jpg', // Path to your asset image
-                  fit: BoxFit.cover,
-                    height: double.infinity,
-                  width: double.infinity,
-                ),
-              );
-            }
-          },
-        );
-      },
-    );
-  }
 
-  Future<Uint8List?> _getArtwork(int? id) async {
-    if (id == null) return null;
-    return await audioQuery.queryArtwork(id, ArtworkType.AUDIO);
-  }
+Widget buildMusicImage(BuildContext context, double? borderRadius,
+    {BoxFit?   boxFit = BoxFit.fill}) {
+  PlayerController playerController = Get.put(PlayerController());
+  return Obx(
+    () {
+      return FutureBuilder<Uint8List?>(
+        future: _getArtwork(playerController.playingSong.value?.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasData && snapshot.data != null) {
+            return ClipRRect(
+              borderRadius: borderRadius != null
+                  ? BorderRadius.circular(borderRadius)
+                  : BorderRadius.zero,
+              child: Image.memory(
+                snapshot.data!,
+                fit: boxFit,
+                height: double.infinity,
+                width: double.infinity,
+              ),
+            );
+          } else {
+            return ClipRRect(
+              borderRadius: borderRadius != null
+                  ? BorderRadius.circular(borderRadius)
+                  : BorderRadius.zero,
+              child: Image.asset(
+                'assets/images/headphones.jpg', // Path to your asset image
+                fit: boxFit,
+                height: double.infinity,
+                width: double.infinity,
+              ),
+            );
+          }
+        },
+      );
+    },
+  );
+}
+
+Future<Uint8List?> _getArtwork(int? id) async {
+  if (id == null) return null;
+  return await audioQuery.queryArtwork(id, ArtworkType.AUDIO);
+}
+
 Widget getSvgImage(String image,
     {double? width,
     double? height,
@@ -209,8 +212,7 @@ Widget getSearchWidget(
               fontSize: 16.sp,
               fontFamily: Constant.fontsFamily),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22.h),
-              color: lightBg),
+              borderRadius: BorderRadius.circular(22.h), color: lightBg),
           padding: EdgeInsets.symmetric(
               vertical: vertical.h, horizontal: horizontal.h),
           suffix: withSufix == true
@@ -234,6 +236,7 @@ Widget getSearchWidget(
     },
   );
 }
+
 Widget getTwoRichText(
     String firstText,
     Color firstColor,
@@ -721,7 +724,4 @@ Widget getProfileWidget(Function function, String image, String name) {
       ],
     ),
   );
-
-
-  
 }

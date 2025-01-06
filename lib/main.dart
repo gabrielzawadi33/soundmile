@@ -11,6 +11,8 @@ import 'package:sound_mile/util/pref_data.dart';
 //   runApp(const MyApp());
 // }
 
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized() ;
   await PrefData.initializeDefaults();

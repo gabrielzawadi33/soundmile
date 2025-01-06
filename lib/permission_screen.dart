@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,31 +19,44 @@ class PermissionPage extends StatefulWidget {
 }
 
 class _PermissionPageState extends State<PermissionPage> {
+  Future<double> _getAndroidVersion() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    // Parse the Android version release string to a double
+    double androidVersion = double.tryParse(androidInfo.version.release) ?? 0.0;
+
+    return androidVersion;
+  }
+
   Future<void> requestPermission() async {
     try {
       print('Requesting permission...');
       if (Platform.isAndroid) {
+
+        final double androidVersion = await _getAndroidVersion();
+        print(androidVersion);
         // Extract the major version number correctly
-        String versionString = Platform.version.split(' ')[0];
-        int androidVersion = int.parse(versionString.split('.')[0]);
-        print('Android version: $androidVersion');
+        // String versionString = Platform.version.split(' ')[0];
+        // int androidVersion = int.parse(versionString.split('.')[0]);
+        // print('Android version: ${Platform.version}');
 
-        if (androidVersion >= 13) {
-          // For Android 13 and above
-          final permissions = [
-            Permission.photos,
-            Permission.videos,
-            Permission.audio,
-          ];
+        // For Android 13 and above
+        if(androidVersion >= 13){
+        final permissions = [
+          Permission.photos,
+          Permission.videos,
+          Permission.audio,
+        ];
 
-          final statuses = await permissions.request();
-          print('Permission statuses: $statuses');
+        final statuses = await permissions.request();
+        print('Permission statuses: $statuses');
 
-          if (statuses.values.every((status) => status.isGranted)) {
-            onPermissionGranted();
-          } else {
-            showPermissionDeniedDialog();
-          }
+        if (statuses.values.every((status) => status.isGranted)) {
+          onPermissionGranted();
+        } else {
+          showPermissionDeniedDialog();
+        }
         } else {
           // For Android versions below 13
           final status = await Permission.storage.status;
