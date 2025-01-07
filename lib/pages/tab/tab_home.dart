@@ -5,10 +5,11 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/model/extended_song_model.dart';
-import 'package:sound_mile/pages/player/music_player.dart';
+import 'package:sound_mile/pages/view%20all/all_recent_music.dart';
 
 import '../../controllers/home_conroller.dart';
 import '../../util/color_category.dart';
+import '../../util/constant.dart';
 import '../../util/constant_widget.dart';
 
 class TabHome extends StatefulWidget {
@@ -345,8 +346,10 @@ class _TabHomeState extends State<TabHome> {
                 fontWeight: FontWeight.w700),
             GestureDetector(
               onTap: () {
-                // Constant.sendToNext(context, Routes.popularMusicListRoute,
-                //     arguments: songController);
+                Get.to(
+                  AllRecentMusic(),
+                  transition: Transition.rightToLeftWithFade,
+                );
               },
               child: getCustomFont("View All", 12.sp, textColor, 1,
                   fontWeight: FontWeight.w700),
@@ -409,38 +412,32 @@ class _TabHomeState extends State<TabHome> {
                           ),
                           Positioned(
                             bottom: 2,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: 100,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      getCustomFont(popularSong.title!, 16.sp,
-                                          textColor, 1,
-                                          fontWeight: FontWeight.w700),
-                                      getVerSpace(1.h),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 8.0),
-                                        child: getCustomFont(
-                                          popularSong.artist!,
-                                          8.sp,
-                                          Colors.white,
-                                          1,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                            child: SizedBox(
+                              width: 100,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 6.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    getCustomFont(
+                                        popularSong.title!, 12.sp, textColor, 1,
+                                        fontWeight: FontWeight.w700),
+                                    getVerSpace(1.h),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8.0),
+                                      child: getCustomFont(
+                                        popularSong.artist!,
+                                        8.sp,
+                                        Colors.white,
+                                        1,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                getSvgImage("video_circle.svg",
-                                    height: 34.h, width: 34.h)
-                              ],
-                            ).paddingSymmetric(horizontal: 10.h),
+                              ),
+                            ),
                           )
                         ],
                       ).paddingOnly(left: index == 0 ? 20.h : 0, right: 10.h),

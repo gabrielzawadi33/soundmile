@@ -397,22 +397,21 @@ class _MusicPlayerState extends State<MusicPlayer> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(
-                icon: playerController.isShuffle.value
-                    ? Icon(Icons.shuffle_on_outlined, color: textColor)
-                    : Icon(Icons.shuffle, color: textColor),
-                onPressed: () {
-                  setState(() {
-                    playerController.isShuffle.value =
-                        !playerController.isShuffle.value;
-                  });
-                  showToast(
-                      playerController.isShuffle.value
-                          ? "Shuffle mode enabled"
-                          : "Shuffle mode disabled",
-                      context);
-                },
-              ),
+              Obx(() {
+                return IconButton(
+                  icon: playerController.isShuffle.value
+                      ? Icon(Icons.shuffle_on_outlined, color: textColor)
+                      : Icon(Icons.shuffle, color: textColor),
+                  onPressed: () {
+                    playerController.toggleShuffleMode();
+                    showToast(
+                        playerController.isShuffle.value
+                            ? "Shuffle mode enabled"
+                            : "Shuffle mode disabled",
+                        context);
+                  },
+                );
+              }),
               IconButton(
                 icon: Icon(Icons.replay_5, color: textColor),
                 onPressed: () {

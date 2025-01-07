@@ -153,6 +153,11 @@ class PlayerController extends GetxController {
     return null;
   }
 
+
+  toggleShuffleMode(){
+      isShuffle.value = !isShuffle.value;
+  }
+
   Future<void> playSong(String? uri, int initialIndex) async {
     isPlaying.value = true;
     try {
