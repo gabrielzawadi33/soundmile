@@ -6,6 +6,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/model/extended_song_model.dart';
+import 'package:sound_mile/pages/search/search_screen.dart';
 import 'package:sound_mile/pages/view%20all/all_recent_music.dart';
 import '../../controllers/home_conroller.dart';
 import '../../util/color_category.dart';
@@ -588,19 +589,24 @@ class _TabHomeState extends State<TabHome> {
 
   Widget buildAppBar() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        getTwoRichText(
-          "",
-          accentColor,
-          FontWeight.w700,
-          22.sp,
-          "Sound Mile",
-          textColor,
-          FontWeight.w700,
-          22.sp,
+        Center(
+          child: getTwoRichText(
+            "",
+            accentColor,
+            FontWeight.w700,
+            22.sp,
+            "Sound Mile",
+            textColor,
+            FontWeight.w700,
+            22.sp,
+          ),
         ),
+        IconButton(onPressed: (){
+          Get.to(SearchScreen(), transition: Transition.rightToLeft); 
+        }, icon: Icon(CupertinoIcons.search, color: textColor,)),
         // Icon(
         //   Icons.notifications_none,
         //   color: textColor,
