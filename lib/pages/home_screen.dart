@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -32,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ModelBottom> bottomLists = DataFile.bottomList;
   SongController audioController = Get.put(SongController());
   PlayerController playerController = Get.put(PlayerController());
+  HomeController homeController = Get.put(HomeController());
+  bool isShowPlaying = true;
 
   // void backClick() {
   //   Constant.closeApp();
@@ -40,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // print(userControroller.user.value);
   }
 
   static final List<Widget> _widgetOptions = <Widget>[
@@ -76,17 +78,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 // bottom  Nav Bar
   buildBottomnavigation(
       HomeController controller, SongController audioController) {
     return Obx(
       () {
         return SizedBox(
-          height: (playerController.isPlaying.value) ? 60.h : 0.h,
+          height: (homeController
+                  .isShowPlayingSong.value && playerController.playingSong != null) ? 60.h : 0.h,
           child: Stack(
             children: [
-              if (playerController
-                  .isPlaying.value) // Show only if isPlaying is true
+              if (homeController
+                  .isShowPlayingSong.value && playerController.playingSong != null) // Show only if isPlaying is true
                 Positioned(
                   top: 0.h,
                   left: 0,
@@ -116,19 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: 50.h,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(11.h),
-                              // image: DecorationImage(
-                              //     image: NetworkImage(song.photo!),
-                              //     fit: BoxFit.cover),
                             ),
-                            // child: QueryArtworkWidget(
-                            //   artworkBorder: BorderRadius.circular(11.h),
-                            //   id: playerController.playingSong.value!.id,
-                            //   type: ArtworkType.AUDIO,
-                            //   // artworkQuality: 100,
-                            // ),
-                               child: QueryArtworkWidget(
+                            child: QueryArtworkWidget(
                               artworkBorder: BorderRadius.circular(22.h),
-                              id:playerController.playingSong.value!.id,
+                              id: playerController.playingSong.value?.id?? 0,
                               type: ArtworkType.AUDIO,
                               nullArtworkWidget: ClipRRect(
                                 borderRadius: BorderRadius.circular(22.h),
@@ -147,14 +142,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 getCustomFont(
-                                    playerController.playingSong.value!.title,
+                                    playerController.playbackState.value.playingSong?.title ?? '',
                                     10.sp,
                                     Colors.white,
                                     1,
                                     fontWeight: FontWeight.w700),
                                 getVerSpace(6.h),
                                 getCustomFont(
-                                  "${playerController.playingSong.value!.artist}  ",
+                                  "${playerController.playbackState.value.playingSong?.artist ?? ''}  ",
                                   8.sp,
                                   searchHint,
                                   1,
@@ -169,16 +164,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           Obx(() => IconButton(
                                 icon: Icon(
                                   playerController.isPlaying.value
-                                      ? Icons.pause
-                                      : Icons.play_arrow,
+                                      ? CupertinoIcons.pause
+                                      : CupertinoIcons.play_arrow,
                                   // size: 72.h,
                                   color: Colors.white,
                                 ),
                                 onPressed: () async {
-                                  await playerController.togglePlayPause();
+                                  await playerController.homePlayPause();
                                 },
                               )),
-                          getHorSpace(20.h),
+                          IconButton(
+                              onPressed: () {
+                                homeController.setIsShowPlayingData(false);
+                              },
+                              icon: Icon(CupertinoIcons.clear,
+                                  color: Colors.white, size: 18)),
+                          getHorSpace(5.h),
                         ],
                       ),
                     ),

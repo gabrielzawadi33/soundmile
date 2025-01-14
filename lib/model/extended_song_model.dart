@@ -11,6 +11,20 @@ class ExtendedSongModel extends SongModel {
     return ExtendedSongModel(song.getMap, artworkUri: artworkUri);
   }
 
+  // Convert an ExtendedSongModel into a Map. The keys must correspond to the names of the JSON keys.
+  Map toJson() {
+    final map = super.getMap;
+    map['artworkUri'] = artworkUri?.toString();
+    return map;
+  }
+
+  // A method that converts a map into an ExtendedSongModel.
+  factory ExtendedSongModel.fromJson(Map<String, dynamic> json) {
+    final songModel = SongModel(json);
+    final artworkUri = json['artworkUri'] != null ? Uri.parse(json['artworkUri']) : null;
+    return ExtendedSongModel.fromSongModel(songModel, artworkUri);
+  }
+
   @override
   String toString() {
     return '${super.toString()}, artworkUri: $artworkUri';

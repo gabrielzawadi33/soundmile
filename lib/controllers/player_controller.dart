@@ -6,8 +6,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:audio_service/audio_service.dart';
+import 'package:sound_mile/controllers/home_conroller.dart';
 import 'package:sound_mile/model/extended_song_model.dart';
+import 'package:sound_mile/util/pref_data.dart';
 
 class PlayerController extends GetxController {
   static final PlayerController _instance = PlayerController._internal();
@@ -30,8 +31,12 @@ class PlayerController extends GetxController {
   var generatedNumbers = <int>{}.obs;
   var playingSong = Rx<ExtendedSongModel?>(null);
   var artworkUri = Rx<Uri?>(null);
+  var playbackState = PlaybackState().obs;
   Duration get currentPlaybackPosition => audioPlayer.position;
   List<AudioSource> songList = [];
+
+ 
+
 
   @override
   void onInit() {
@@ -39,20 +44,61 @@ class PlayerController extends GetxController {
     initPlayerListener();
   }
 
+  Future<void> savePlayingSong() async {
+    await PrefData.savePlayingSong(playingSong.value);
+  }
+
+  Future<void> loadPlayingSong() async {
+    playingSong.value = await PrefData.loadPlayingSong();
+  }
+
   void initPlayerListener() {
     audioPlayer.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed &&
-          loopMode.value == LoopMode.off) {
-        playNextSong();
-      }
+          loopMode.value == LoopMode.off) {}
+      _broadcastState(state);
     });
 
     audioPlayer.currentIndexStream.listen((index) {
       if (index != null && index < playList.length) {
         currentIndex.value = index;
         playingSong.value = playList[index];
+        _broadcastState(audioPlayer.playerState);
       }
     });
+  }
+
+  void _broadcastState(PlayerState state) {
+    playbackState.value = PlaybackState(
+      processingState: state.processingState,
+      playing: state.playing,
+      currentIndex: currentIndex.value,
+      playingSong: playingSong.value,
+    );
+  }
+   Future<void> homePlayPause() async {
+    if (songList.isEmpty) {
+      if (playingSong.value != null) {
+        isPlaying.value = true;
+        MediaItem mediaItem = MediaItem(
+          id: playingSong.value?.uri ?? '',
+          album: "Album Name", // Replace with actual album name
+          title: "Song Title", // Replace with actual song title
+          artist: "Artist Name", // Replace with actual artist name
+        );
+        AudioSource audioSource = AudioSource.uri(
+          Uri.parse(playingSong.value?.uri ?? ''),
+          tag: mediaItem,
+        );
+        songList = [audioSource];
+        await audioPlayer.setAudioSource(audioSource);
+        await audioPlayer.play();
+      } else {
+        print('No song to play');
+      }
+    } else {
+      togglePlayPause();
+    }
   }
 
   Future<List<ExtendedSongModel>> fetchSongs() async {
@@ -93,14 +139,15 @@ class PlayerController extends GetxController {
   void playNextSong() {
     if (isShuffle.value) {
       currentIndex.value = generateUniqueRandomNumber(playList.length);
+      playCurrentSong();
     } else {
       if (currentIndex.value < playList.length - 1) {
         currentIndex.value++;
+        audioPlayer.seekToNext();
       } else {
         currentIndex.value = 0;
       }
     }
-    playCurrentSong();
   }
 
   void playCurrentSong() async {
@@ -128,14 +175,14 @@ class PlayerController extends GetxController {
   void playPreviousSong() {
     if (isShuffle.value) {
       currentIndex.value = generateUniqueRandomNumber(playList.length);
+      playCurrentSong();
     } else {
       if (currentIndex.value > 0) {
-        currentIndex.value--;
+        audioPlayer.seekToPrevious();
       } else {
         currentIndex.value = playList.length - 1;
       }
     }
-    playCurrentSong();
   }
 
   Future<String?> fetchArtworkUri(int songId) async {
@@ -153,9 +200,19 @@ class PlayerController extends GetxController {
     return null;
   }
 
+  void toggleShuffleMode() {
+    isShuffle.value = !isShuffle.value;
+    setShuffleMode();
+  }
 
-  toggleShuffleMode(){
-      isShuffle.value = !isShuffle.value;
+  Future<void> setShuffleMode() async {
+    if (audioPlayer.shuffleModeEnabled == true) {
+      audioPlayer.setShuffleModeEnabled(false);
+    } else {
+      audioPlayer.setShuffleModeEnabled(true);
+    }
+
+    _broadcastState(audioPlayer.playerState);
   }
 
   Future<void> playSong(String? uri, int initialIndex) async {
@@ -184,6 +241,7 @@ class PlayerController extends GetxController {
 
         await audioPlayer.play();
       }
+      HomeController().setIsShowPlayingData(true);
     } catch (e) {
       print("Error playing song: $e");
     }
@@ -205,13 +263,29 @@ class PlayerController extends GetxController {
     audioPlayer.dispose();
     super.onClose();
   }
- togglePlayPause() {
+
+  togglePlayPause() {
     if (audioPlayer.playing) {
       isPlaying.value = false;
       audioPlayer.pause();
     } else {
       isPlaying.value = true;
+
       audioPlayer.play();
     }
   }
+}
+
+class PlaybackState {
+  final ProcessingState processingState;
+  final bool playing;
+  final int currentIndex;
+  final ExtendedSongModel? playingSong;
+
+  PlaybackState({
+    this.processingState = ProcessingState.idle,
+    this.playing = false,
+    this.currentIndex = 0,
+    this.playingSong,
+  });
 }

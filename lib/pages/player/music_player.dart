@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -258,17 +259,22 @@ class _MusicPlayerState extends State<MusicPlayer> {
                   Obx(() {
                     return getAppBar(() {
                       backClick();
-                    }, playerController.playingSong.value?.title ?? '');
+                    },
+                        playerController
+                                .playbackState.value.playingSong?.title ??
+                            '');
                   }),
-                  getVerSpace(40.h),
+                  // getVerSpace(10.h),
                   Expanded(
                     child: ListView(
                       primary: true,
                       shrinkWrap: false,
                       children: [
                         buildMusicPoster(),
-                        getVerSpace(5.h),
+
                         getVerSpace(30.h),
+                        buildMusicDetail(),
+                        getVerSpace(5.h),
                         buildPlaybackControls(),
                         getVerSpace(30.h),
                         // buildPlaylistSection(),
@@ -300,7 +306,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
       padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 20.h),
       child: Column(
         children: [
-          buildMusicDetail(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -329,17 +334,26 @@ class _MusicPlayerState extends State<MusicPlayer> {
                           positionSnapshot.data?.inMilliseconds.toDouble() ??
                               0.0;
                       return Expanded(
-                        child: Slider(
-                          min: 0.0,
-                          max: maxDuration,
-                          value:
-                              position > maxDuration ? maxDuration : position,
-                          onChanged: (value) {
-                            playerController.audioPlayer
-                                .seek(Duration(milliseconds: value.toInt()));
-                          },
-                          activeColor: textColor,
-                          inactiveColor: Colors.grey,
+                        child: SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            thumbShape: RoundSliderThumbShape(
+                                enabledThumbRadius:
+                                    6.0), // Adjust the radius as needed
+                            activeTrackColor: secondaryColor,
+                            inactiveTrackColor: textColor.withOpacity(0.5),
+                            thumbColor: textColor,
+                            overlayColor: secondaryColor.withOpacity(0.2),
+                          ),
+                          child: Slider(
+                            min: 0.0,
+                            max: maxDuration,
+                            value:
+                                position > maxDuration ? maxDuration : position,
+                            onChanged: (value) {
+                              playerController.audioPlayer
+                                  .seek(Duration(milliseconds: value.toInt()));
+                            },
+                          ),
                         ),
                       );
                     },
@@ -365,18 +379,18 @@ class _MusicPlayerState extends State<MusicPlayer> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: Icon(Icons.skip_previous, color: textColor),
-                iconSize: 42.h,
+                icon: Icon(CupertinoIcons.backward_end_fill, color: textColor, size: 30.h),
+              
                 onPressed: () {
                   playerController.playPreviousSong();
                 },
               ),
-              getHorSpace(40.h),
+              getHorSpace(30.h),
               Obx(() => IconButton(
                     icon: Icon(
                       playerController.isPlaying.value
-                          ? Icons.pause
-                          : Icons.play_arrow,
+                          ? CupertinoIcons.pause_circle
+                          : CupertinoIcons.play_circle_fill,
                       size: 72.h,
                       color: textColor,
                     ),
@@ -384,10 +398,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       await playerController.togglePlayPause();
                     },
                   )),
-              getHorSpace(40.h),
+              getHorSpace(30.h),
               IconButton(
-                icon: Icon(Icons.skip_next_sharp, color: textColor, size: 42.h),
-                iconSize: 42.h,
+                icon: Icon(CupertinoIcons.forward_end_fill,
+                    color: textColor, size: 30.h),
                 onPressed: () {
                   playerController.playNextSong();
                 },
@@ -400,8 +414,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
               Obx(() {
                 return IconButton(
                   icon: playerController.isShuffle.value
-                      ? Icon(Icons.shuffle_on_outlined, color: textColor)
-                      : Icon(Icons.shuffle, color: textColor),
+                      ? Icon(CupertinoIcons.shuffle_thick,
+                          color: secondaryColor)
+                      : Icon(CupertinoIcons.shuffle, color: textColor),
                   onPressed: () {
                     playerController.toggleShuffleMode();
                     showToast(
@@ -427,15 +442,33 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
+                icon: Icon(Icons.forward_5, color: textColor),
+                onPressed: () {
+                  final currentPosition = playerController.audioPlayer.position;
+                  final duration = playerController.audioPlayer.duration;
+                  if (currentPosition + Duration(seconds: 5) < duration!) {
+                    playerController.audioPlayer
+                        .seek(currentPosition + Duration(seconds: 5));
+                    showToast(
+                      "Forward 5 seconds",
+                      context,
+                    );
+                  } else {
+                    playerController.audioPlayer.seek(duration);
+                    showToast("Reached end of song", context);
+                  }
+                },
+              ),
+              IconButton(
                 icon: Obx(() {
                   switch (playerController.loopMode.value) {
                     case LoopMode.one:
-                      return Icon(Icons.repeat_one, color: textColor);
+                      return Icon(CupertinoIcons.repeat_1,
+                          color: secondaryColor);
                     case LoopMode.all:
-                      return Icon(Icons.repeat, color: textColor);
+                      return Icon(CupertinoIcons.repeat, color: secondaryColor);
                     default: // LoopMode.off
-                      return Icon(Icons.repeat,
-                          color: textColor.withOpacity(0.5));
+                      return Icon(Icons.repeat, color: textColor);
                   }
                 }),
                 onPressed: () {
@@ -534,22 +567,25 @@ class _MusicPlayerState extends State<MusicPlayer> {
   //         ),
   //       ).marginOnly(bottom: 20.h);
   //     },
-  //   );
+  //   );A
   // }
 
   Column buildMusicDetail() {
     return Column(
       children: [
         Obx(() {
-          return getCustomFont(playerController.playingSong.value?.title ?? "",
-              18.sp, textColor, 1,
+          return getCustomFont(
+              playerController.playbackState.value.playingSong?.title ?? '',
+              18.sp,
+              textColor,
+              1,
               fontWeight: FontWeight.w700);
         }),
         getVerSpace(2.h),
         Obx(
           () {
             return getMultilineCustomFont(
-                playerController.playingSong.value?.artist ?? '',
+                playerController.playbackState.value.playingSong?.artist ?? '',
                 12.sp,
                 hintColor,
                 fontWeight: FontWeight.w400);
@@ -562,14 +598,14 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Widget buildMusicPoster() {
     return Container(
         width: 260.h,
-        height: 290.h,
+        height: 380.h,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(2.h),
-        ),
+            // borderRadius: BorderRadius.circular(2.h),
+            ),
         child: buildMusicImage(
           context,
-          10.0, // Example border radius
-          boxFit: BoxFit.cover, // Example BoxFit
+          20.0, // Example border radius
+          boxFit: BoxFit.fitWidth, // Example BoxFit
         ));
 
     // Widget buildPlayListButton(BuildContext context, int songId) {

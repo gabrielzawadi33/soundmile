@@ -4,31 +4,51 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:sound_mile/splash_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/pref_data.dart';
-
-// Future<void> main() async {
-//   WidgetsFlutterBinding.ensureInitialized() ;
-//   await PrefData.initializeDefaults();
-//   runApp(const MyApp());
-// }
-
-
+import 'package:get/get.dart';
+import 'controllers/player_controller.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized() ;
+  WidgetsFlutterBinding.ensureInitialized();
   await PrefData.initializeDefaults();
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
-    
+    androidNotificationIcon: 'drawable/ic_notification',
   );
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  final PlayerController playerController = Get.put(PlayerController());
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    playerController.loadPlayingSong();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      playerController.savePlayingSong();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -39,7 +59,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-
     );
   }
 }

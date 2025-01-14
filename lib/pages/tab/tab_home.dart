@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,11 +7,10 @@ import 'package:sound_mile/controllers/audio_controller.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 import 'package:sound_mile/model/extended_song_model.dart';
 import 'package:sound_mile/pages/view%20all/all_recent_music.dart';
-
 import '../../controllers/home_conroller.dart';
 import '../../util/color_category.dart';
-import '../../util/constant.dart';
 import '../../util/constant_widget.dart';
+import '../view all/all_music.dart';
 
 class TabHome extends StatefulWidget {
   const TabHome({
@@ -26,6 +26,8 @@ class _TabHomeState extends State<TabHome> {
   HomeScreenController controller = Get.put(HomeScreenController());
   SongController songController = Get.find<SongController>();
   PlayerController playerController = Get.put(PlayerController());
+  HomeController homeController = Get.put(HomeController());
+
   bool isGranted = false;
 
   @override
@@ -57,9 +59,9 @@ class _TabHomeState extends State<TabHome> {
       children: [
         getVerSpace(30.h),
         buildAppBar(),
-        getVerSpace(30.h),
-        buildSearchWidget(context),
-        getVerSpace(30.h),
+        // getVerSpace(30.h),
+        // buildSearchWidget(context),
+        // getVerSpace(30.h),
         Expanded(
           flex: 1,
           child: ListView(
@@ -215,9 +217,23 @@ class _TabHomeState extends State<TabHome> {
             getCustomFont("All Music", 18.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
             GestureDetector(
-              onTap: () {},
-              child: getCustomFont("View All", 12.sp, textColor, 1,
-                  fontWeight: FontWeight.w700),
+              onTap: () {
+                Get.to(
+                  AllMusicPage(),
+                  transition: Transition.rightToLeftWithFade,
+                );
+              },
+              child: Row(
+                children: [
+                  getCustomFont("View All", 12.sp, textColor, 1,
+                      fontWeight: FontWeight.w700),
+                  getHorSpace(8.h),
+                  Icon(
+                    CupertinoIcons.arrow_right,
+                    color: textColor,
+                  ),
+                ],
+              ),
             ),
           ],
         ).paddingSymmetric(horizontal: 20.h),
@@ -267,6 +283,8 @@ class _TabHomeState extends State<TabHome> {
                       playerController.playSong(
                           playerController.playingSong.value?.uri!,
                           playerController.initialIndex.value);
+                         homeController.setIsShowPlayingData(true);
+                          
                       // Get.to(() => MusicPlayer());
                     },
                     child: Container(
@@ -347,12 +365,21 @@ class _TabHomeState extends State<TabHome> {
             GestureDetector(
               onTap: () {
                 Get.to(
-                  AllRecentMusic(),
+                  AllRecentMusicPage(),
                   transition: Transition.rightToLeftWithFade,
                 );
               },
-              child: getCustomFont("View All", 12.sp, textColor, 1,
-                  fontWeight: FontWeight.w700),
+              child: Row(
+                children: [
+                  getCustomFont("View All", 12.sp, textColor, 1,
+                      fontWeight: FontWeight.w700),
+                  getHorSpace(8.h),
+                  Icon(
+                    CupertinoIcons.arrow_right,
+                    color: textColor,
+                  ),
+                ],
+              ),
             )
           ],
         ).paddingSymmetric(horizontal: 20.h),
@@ -387,6 +414,7 @@ class _TabHomeState extends State<TabHome> {
                         playerController.playSong(
                             playerController.playingSong.value?.uri!,
                             playerController.currentIndex.value);
+                           homeController.setIsShowPlayingData(true);
                         // Get.to(() => MusicPlayer());
                       },
                       child: Stack(
@@ -573,10 +601,10 @@ class _TabHomeState extends State<TabHome> {
           FontWeight.w700,
           22.sp,
         ),
-        Icon(
-          Icons.notifications_none,
-          color: textColor,
-        )
+        // Icon(
+        //   Icons.notifications_none,
+        //   color: textColor,
+        // )
 
         // GestureDetector(
         //     onTap: () {

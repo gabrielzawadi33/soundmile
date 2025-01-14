@@ -23,7 +23,7 @@ showToast(String s, BuildContext context) {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black,
+        backgroundColor: secondaryColor,
         textColor: textColor,
         fontSize: 12);
 
@@ -89,7 +89,7 @@ Widget buildMusicImage(BuildContext context, double? borderRadius,
 
 Future<Uint8List?> _getArtwork(int? id) async {
   if (id == null) return null;
-  return await audioQuery.queryArtwork(id, ArtworkType.AUDIO);
+  return await audioQuery.queryArtwork(id, ArtworkType.AUDIO, size:1000, quality: 100);
 }
 
 Widget getSvgImage(String image,

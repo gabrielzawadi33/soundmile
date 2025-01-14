@@ -6,6 +6,7 @@ import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/constant_widget.dart';
 import 'package:sound_mile/util/pref_data.dart';
 
+import 'controllers/home_conroller.dart';
 import 'controllers/player_controller.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+    HomeController homeController = Get.put(HomeController());
     late bool isPermitted;
 
   @override
@@ -25,6 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void getIsFirst() async {
+    homeController.getIsShowPlayingData();
     await Future.delayed(const Duration(seconds:1));
      isPermitted = (await PrefData.getIsPermitted())!;
 

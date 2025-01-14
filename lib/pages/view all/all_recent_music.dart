@@ -13,14 +13,14 @@ import '../../util/constant.dart';
 import '../../util/constant_widget.dart';
 import '../player/music_player.dart';
 
-class AllRecentMusic extends StatefulWidget {
-  const AllRecentMusic({super.key});
+class AllRecentMusicPage extends StatefulWidget {
+  const AllRecentMusicPage({super.key});
 
   @override
-  State<AllRecentMusic> createState() => _AllRecentMusicState();
+  State<AllRecentMusicPage> createState() => _AllRecentMusicPageState();
 }
 
-class _AllRecentMusicState extends State<AllRecentMusic> {
+class _AllRecentMusicPageState extends State<AllRecentMusicPage> {
   SongController songController = Get.find<SongController>();
   PlayerController playerController = Get.put(PlayerController());
   void backClick() {
