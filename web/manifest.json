@@ -3,7 +3,7 @@
     "short_name": "sound_mile",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#hexcode",
+    "background_color": "#A28B55",
     "theme_color": "#hexcode",
     "description": "A new Flutter project.",
     "orientation": "portrait-primary",

@@ -246,50 +246,87 @@ class _MusicPlayerState extends State<MusicPlayer> {
               boxFit: BoxFit.fitHeight, // Example BoxFit
             ),
             Container(
-              decoration: BoxDecoration(
-                color: bgDark.withOpacity(0.9),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(22.h),
-                  topRight: Radius.circular(22.h),
-                ),
-              ),
-              child: Column(
-                children: [
-                  getVerSpace(50.h),
-                  Obx(() {
-                    return getAppBar(() {
-                      backClick();
-                    },
-                        playerController
-                                .playbackState.value.playingSong?.title ??
-                            '');
-                  }),
-                  // getVerSpace(10.h),
-                  Expanded(
-                    child: ListView(
-                      primary: true,
-                      shrinkWrap: false,
-                      children: [
-                        buildMusicPoster(),
-
-                        getVerSpace(30.h),
-                        buildMusicDetail(),
-                        getVerSpace(5.h),
-                        buildPlaybackControls(),
-                        getVerSpace(30.h),
-                        // buildPlaylistSection(),
-                        // Center(
-                        //   child: Text(
-                        //     'Lyrics',
-                        //     style: TextStyle(color: textColor),
-                        //   ),
-                        // ),
-                      ],
-                    ),
+                decoration: BoxDecoration(
+                  color: bgDark.withOpacity(0.9),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(22.h),
+                    topRight: Radius.circular(22.h),
                   ),
-                ],
-              ).paddingSymmetric(horizontal: 20.h),
-            ),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      child: Column(
+                        children: [
+                          getVerSpace(50.h),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: IconButton(
+                              onPressed: () {
+                                backClick();
+                              },
+                              icon: Icon(
+                                CupertinoIcons.arrow_left,
+                                size: 30.h,
+                                color: textColor,
+                              ),
+                            ),
+                          ),
+                          Obx(() {
+                            return Column(
+                              children: [
+                                Text(
+                                    playerController
+                                            .playingSong.value?.title ??
+                                        '',
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.w700,
+                                    )),
+                              ],
+                            ).paddingSymmetric(horizontal: 20);
+                          }),
+                          getVerSpace(30.h),
+                        ],
+                      ),
+                    ),
+
+                    // Obx(() {
+                    //   return getAppBar(() {
+                    //     backClick();
+                    //   },
+                    //       playerController
+                    //               .playbackState.value.playingSong?.title ??
+                    //           '');
+                    // }),
+                    // getVerSpace(10.h),
+                    Expanded(
+                      child: ListView(
+                        padding: EdgeInsets.symmetric(horizontal: 20.h),
+                        primary: true,
+                        shrinkWrap: false,
+                        children: [
+                          buildMusicPoster(),
+                          getVerSpace(20.h),
+                          buildMusicDetail(),
+                          getVerSpace(30.h),
+                          buildPlaybackControls(),
+                          getVerSpace(30.h),
+                          // buildPlaylistSection(),
+                          // Center(
+                          //   child: Text(
+                          //     'Lyrics',
+                          //     style: TextStyle(color: textColor),
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )),
           ],
         ),
       ),
@@ -379,8 +416,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: Icon(CupertinoIcons.backward_end_fill, color: textColor, size: 30.h),
-              
+                icon: Icon(CupertinoIcons.backward_end_fill,
+                    color: textColor, size: 30.h),
                 onPressed: () {
                   playerController.playPreviousSong();
                 },
@@ -575,7 +612,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
       children: [
         Obx(() {
           return getCustomFont(
-              playerController.playbackState.value.playingSong?.title ?? '',
+              playerController.playingSong.value?.title ?? '',
               18.sp,
               textColor,
               1,
@@ -585,7 +622,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
         Obx(
           () {
             return getMultilineCustomFont(
-                playerController.playbackState.value.playingSong?.artist ?? '',
+                playerController.playingSong.value?.artist ?? '',
                 12.sp,
                 hintColor,
                 fontWeight: FontWeight.w400);
@@ -597,8 +634,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
 
   Widget buildMusicPoster() {
     return Container(
-        width: 260.h,
-        height: 380.h,
+        height: 300.h,
         decoration: BoxDecoration(
             // borderRadius: BorderRadius.circular(2.h),
             ),

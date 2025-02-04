@@ -1,4 +1,4 @@
-import 'package:country_code_picker/country_code_picker.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,13 +8,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:sound_mile/util/country_code_picker.dart';
+import 'package:sound_mile/model/extended_song_model.dart';
 
+import '../controllers/home_conroller.dart';
 import '../controllers/player_controller.dart';
+import '../pages/player/music_player.dart';
 import 'color_category.dart';
 import 'constant.dart';
 
 final OnAudioQuery audioQuery = OnAudioQuery();
+PlayerController playerController = Get.put(PlayerController());
+HomeController homeController = Get.put(HomeController());
 
 showToast(String s, BuildContext context) {
   if (s.isNotEmpty) {
@@ -46,13 +50,44 @@ Widget getAssetImage(String image,
   );
 }
 
+Widget buildRecentImage(BuildContext context, int id) {
+  return FutureBuilder<Uint8List?>(
+    future: getArtwork(id),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const CircularProgressIndicator();
+      } else if (snapshot.hasData && snapshot.data != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: Image.memory(
+            snapshot.data!,
+            fit: BoxFit.cover,
+            height: double.infinity,
+            width: double.infinity,
+          ),
+        );
+      } else {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: Image.asset(
+            'assets/images/headphones.png', // Path to your asset image
+
+            height: double.infinity,
+            width: double.infinity,
+          ),
+        );
+      }
+    },
+  );
+}
+
 Widget buildMusicImage(BuildContext context, double? borderRadius,
-    {BoxFit?   boxFit = BoxFit.fill}) {
+    {BoxFit? boxFit = BoxFit.fill}) {
   PlayerController playerController = Get.put(PlayerController());
   return Obx(
     () {
       return FutureBuilder<Uint8List?>(
-        future: _getArtwork(playerController.playingSong.value?.id),
+        future: getArtwork(playerController.playingSong.value?.id),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -74,8 +109,8 @@ Widget buildMusicImage(BuildContext context, double? borderRadius,
                   ? BorderRadius.circular(borderRadius)
                   : BorderRadius.zero,
               child: Image.asset(
-                'assets/images/headphones.jpg', // Path to your asset image
-                fit: boxFit,
+                'assets/images/headphones.png', // Path to your asset image
+
                 height: double.infinity,
                 width: double.infinity,
               ),
@@ -87,9 +122,125 @@ Widget buildMusicImage(BuildContext context, double? borderRadius,
   );
 }
 
-Future<Uint8List?> _getArtwork(int? id) async {
+buildBottomMusicBar() {
+  return Obx(
+    () {
+      return SizedBox(
+        height: (homeController.isShowPlayingSong.value &&
+                playerController.playingSong != null)
+            ? 60.h
+            : 0.h,
+        child: Stack(
+          children: [
+            if (homeController.isShowPlayingSong.value &&
+                playerController.playingSong !=
+                    null) // Show only if isPlaying is true
+              Positioned(
+                top: 0.h,
+                left: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () {
+                    Get.to(
+                      MusicPlayer(),
+                      transition: Transition.downToUp,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(6.h),
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    decoration: BoxDecoration(
+                      color: accentColor.withOpacity(0.75),
+                      // borderRadius: BorderRadius.circular(22.h),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        getHorSpace(12.h),
+                        Container(
+                          height: 50.h,
+                          width: 50.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(11.h),
+                          ),
+                          child: QueryArtworkWidget(
+                            artworkBorder: BorderRadius.circular(22.h),
+                            id: playerController.playingSong.value?.id ?? 0,
+                            type: ArtworkType.AUDIO,
+                            nullArtworkWidget: ClipRRect(
+                              borderRadius: BorderRadius.circular(22.h),
+                              child: Image.asset(
+                                'assets/images/headphones.png', // Path to your asset imageA
+                                fit: BoxFit.cover,
+                                height: 60.h,
+                                width: 60.h,
+                              ),
+                            ),
+                          ),
+                        ),
+                        getHorSpace(12.h),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              getCustomFont(
+                                  playerController.playingSong.value?.title ??
+                                      '',
+                                  10.sp,
+                                  Colors.white,
+                                  1,
+                                  fontWeight: FontWeight.w700),
+                              getVerSpace(6.h),
+                              getCustomFont(
+                                "${playerController.playingSong.value?.artist ?? ''}  ",
+                                8.sp,
+                                searchHint,
+                                1,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ],
+                          ),
+                        ),
+                        getHorSpace(12.h),
+                        // SizedBox(width: 20.h),
+
+                        Obx(() => IconButton(
+                              icon: Icon(
+                                playerController.isPlaying.value
+                                    ? CupertinoIcons.pause
+                                    : CupertinoIcons.play_arrow,
+                                // size: 72.h,
+                                color: Colors.white,
+                              ),
+                              onPressed: () async {
+                                await playerController.togglePlayPause();
+                              },
+                            )),
+                        IconButton(
+                            onPressed: () {
+                              homeController.setIsShowPlayingData(false);
+                            },
+                            icon: Icon(CupertinoIcons.clear,
+                                color: Colors.white, size: 18)),
+                        getHorSpace(5.h),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Future<Uint8List?> getArtwork(int? id) async {
   if (id == null) return null;
-  return await audioQuery.queryArtwork(id, ArtworkType.AUDIO, size:1000, quality: 100);
+  return await audioQuery.queryArtwork(id, ArtworkType.AUDIO,
+      size: 1000, quality: 100);
 }
 
 Widget getSvgImage(String image,
@@ -681,20 +832,48 @@ Widget getToolbarWithIcon(Function function) {
   ]);
 }
 
-Widget getAppBar(Function function, String title) {
+Widget getAppBar(Function function, String title, {int? height}) {
   return Container(
-    child: Row(
+    height: (height ?? 150).h, // Use default height if not provided
+    // color: secondaryColor,
+
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-            onTap: () {
+        Align(
+          alignment: Alignment.topLeft,
+          child: IconButton(
+            onPressed: () {
               function();
             },
-            child: getSvgImage("arrow_back.svg", height: 24.h, width: 24.h)),
-        getHorSpace(20.h),
-        SizedBox(
-            width: 0.7.sw,
-            child: getCustomFont(title, 20.sp, textColor, 1,
-                fontWeight: FontWeight.w700)),
+            icon: Icon(
+              CupertinoIcons.arrow_left,
+              size: 30.h,
+              color: textColor,
+            ),
+          ),
+        ),
+        getVerSpace(10.h),
+        Row(
+          children: [
+            getHorSpace(10.h),
+            Expanded(
+              child: getCustomFont(
+                title,
+                20.sp,
+                textColor,
+                1,
+                textAlign: TextAlign.center,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        Divider(
+          color: secondaryColor,
+          thickness: 0.3,
+        ),
       ],
     ),
   );

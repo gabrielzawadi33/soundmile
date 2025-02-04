@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:sound_mile/pages/home_screen.dart';
 import 'package:sound_mile/permission_screen.dart';
@@ -17,8 +18,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-    HomeController homeController = Get.put(HomeController());
-    late bool isPermitted;
+  HomeController homeController = Get.put(HomeController());
+  late bool isPermitted;
 
   @override
   void initState() {
@@ -28,16 +29,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void getIsFirst() async {
     homeController.getIsShowPlayingData();
-    await Future.delayed(const Duration(seconds:1));
-     isPermitted = (await PrefData.getIsPermitted())!;
+    await Future.delayed(const Duration(seconds: 1));
+    isPermitted = (await PrefData.getIsPermitted())!;
 
     // ignore: unnecessary_null_comparison
     if (!isPermitted || isPermitted == null) {
-      Get.to(const PermissionPage()); 
-      
-      
+      Get.to(const PermissionPage());
     } else {
-      await Future.delayed(const Duration(seconds:3));
+      await Future.delayed(const Duration(seconds: 1));
       await PlayerController().fetchSongs();
       Get.to(HomeScreen());
     }
@@ -45,17 +44,46 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: bgDark,
-      body:  Center(
+      body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             SizedBox(
-              height: 150,
-              width: 150,
-              child: getSvgImage('mile.svg')),
-            // getCustomFont('Sound Mile', 12, textColor, 1),
+              height: 300,
+            ),
+            // SizedBox(
+            //   height: 150,
+            //   width: 150,
+            //   child: getSvgImage('mile.svg')),
+//  getCustomFont('Sound Mile', 30, textColor, 1),
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: ClipOval(
+                child: getAssetImage(
+                  'mile.png',
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 280,
+            ),
+            
+           
+           
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(secondaryColor),
+            ),
+             SizedBox(
+              height: 10,
+            ),
+            getCustomFont('Loading Data...', 12, textColor, 1),
+
+            SizedBox(
+              height: 20,
+            ),
           ],
         ),
       ),

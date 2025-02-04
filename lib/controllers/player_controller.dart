@@ -18,170 +18,58 @@ class PlayerController extends GetxController {
   final AudioPlayer audioPlayer = AudioPlayer();
 
   var isPlaying = false.obs;
-  var initialIndex = 0.obs;
   var currentIndex = 0.obs;
-  var isFavourite = false.obs;
   var isShuffle = false.obs;
-  var isReversed = false.obs;
-  var allSongs = <ExtendedSongModel>[].obs;
-  var recentSongs = <ExtendedSongModel>[].obs;
-  var playList = <ExtendedSongModel>[].obs;
   var loopMode = LoopMode.off.obs;
 
-  var generatedNumbers = <int>{}.obs;
+  var playList = <ExtendedSongModel>[].obs;
+  var recentSongs = <ExtendedSongModel>[].obs;
+  var allSongs = <ExtendedSongModel>[].obs;
   var playingSong = Rx<ExtendedSongModel?>(null);
-  var artworkUri = Rx<Uri?>(null);
-  var playbackState = PlaybackState().obs;
-  Duration get currentPlaybackPosition => audioPlayer.position;
+
   List<AudioSource> songList = [];
-
- 
-
 
   @override
   void onInit() {
     super.onInit();
-    initPlayerListener();
+    _initPlayerListener();
   }
 
-  Future<void> savePlayingSong() async {
-    await PrefData.savePlayingSong(playingSong.value);
-  }
-
-  Future<void> loadPlayingSong() async {
-    playingSong.value = await PrefData.loadPlayingSong();
-  }
-
-  void initPlayerListener() {
-    audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed &&
-          loopMode.value == LoopMode.off) {}
-      _broadcastState(state);
-    });
-
+  void _initPlayerListener() {
     audioPlayer.currentIndexStream.listen((index) {
       if (index != null && index < playList.length) {
         currentIndex.value = index;
         playingSong.value = playList[index];
-        _broadcastState(audioPlayer.playerState);
+      }
+    });
+
+    audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed &&
+          loopMode.value == LoopMode.off) {
+        audioPlayer.stop(); // Stop playback when not looping.
       }
     });
   }
 
-  void _broadcastState(PlayerState state) {
-    playbackState.value = PlaybackState(
-      processingState: state.processingState,
-      playing: state.playing,
-      currentIndex: currentIndex.value,
-      playingSong: playingSong.value,
-    );
-  }
-   Future<void> homePlayPause() async {
-    if (songList.isEmpty) {
-      if (playingSong.value != null) {
-        isPlaying.value = true;
-        MediaItem mediaItem = MediaItem(
-          id: playingSong.value?.uri ?? '',
-          album: "Album Name", // Replace with actual album name
-          title: "Song Title", // Replace with actual song title
-          artist: "Artist Name", // Replace with actual artist name
-        );
-        AudioSource audioSource = AudioSource.uri(
-          Uri.parse(playingSong.value?.uri ?? ''),
-          tag: mediaItem,
-        );
-        songList = [audioSource];
-        await audioPlayer.setAudioSource(audioSource);
-        await audioPlayer.play();
-      } else {
-        print('No song to play');
-      }
-    } else {
-      togglePlayPause();
-    }
-  }
-
   Future<List<ExtendedSongModel>> fetchSongs() async {
-    List<SongModel> fetchedSongs = await OnAudioQuery().querySongs(
-      ignoreCase: true,
-      orderType: OrderType.ASC_OR_SMALLER,
-      sortType: null,
-      uriType: UriType.EXTERNAL,
-    );
+    try {
+      List<SongModel> fetchedSongs = await OnAudioQuery().querySongs(
+        ignoreCase: true,
+        orderType: OrderType.ASC_OR_SMALLER,
+        uriType: UriType.EXTERNAL,
+      );
 
-    for (var song in fetchedSongs) {
-      String? artworkUriString = await fetchArtworkUri(song.id);
-      Uri? artworkUri =
-          artworkUriString != null ? Uri.parse(artworkUriString) : null;
-      allSongs.add(ExtendedSongModel.fromSongModel(song, artworkUri));
-    }
-
-    List<ExtendedSongModel> sortedSongs = List.from(allSongs)
-      ..sort((a, b) => b.dateModified!.compareTo(a.dateModified!));
-
-    recentSongs.value = sortedSongs.take(20).toList();
-    return allSongs;
-  }
-
-  int generateUniqueRandomNumber(int range) {
-    final random = Random();
-    if (generatedNumbers.length == range) {
-      generatedNumbers.clear();
-    }
-    int number;
-    do {
-      number = random.nextInt(range);
-    } while (generatedNumbers.contains(number));
-    generatedNumbers.add(number);
-    return number;
-  }
-
-  void playNextSong() {
-    if (isShuffle.value) {
-      currentIndex.value = generateUniqueRandomNumber(playList.length);
-      playCurrentSong();
-    } else {
-      if (currentIndex.value < playList.length - 1) {
-        currentIndex.value++;
-        audioPlayer.seekToNext();
-      } else {
-        currentIndex.value = 0;
+      for (var song in fetchedSongs) {
+        String? artworkUri = await fetchArtworkUri(song.id);
+        allSongs.add(ExtendedSongModel.fromSongModel(song, artworkUri != null ? Uri.parse(artworkUri) : null));
       }
-    }
-  }
 
-  void playCurrentSong() async {
-    playingSong.value = playList[currentIndex.value];
-
-    songList[currentIndex.value] = AudioSource.uri(
-      Uri.parse(playingSong.value!.uri!),
-      tag: MediaItem(
-        id: playingSong.value!.id.toString(),
-        album: playingSong.value!.album ?? "No Album",
-        title: playingSong.value!.displayNameWOExt,
-        artUri: playingSong.value!.artworkUri,
-      ),
-    );
-
-    await audioPlayer.setAudioSource(
-      ConcatenatingAudioSource(children: songList),
-      initialIndex: currentIndex.value,
-    );
-
-    await audioPlayer.setLoopMode(loopMode.value);
-    await audioPlayer.play();
-  }
-
-  void playPreviousSong() {
-    if (isShuffle.value) {
-      currentIndex.value = generateUniqueRandomNumber(playList.length);
-      playCurrentSong();
-    } else {
-      if (currentIndex.value > 0) {
-        audioPlayer.seekToPrevious();
-      } else {
-        currentIndex.value = playList.length - 1;
-      }
+      recentSongs.value = allSongs.toList()
+        ..sort((a, b) => b.dateModified!.compareTo(a.dateModified!));
+        return allSongs.value;
+    } catch (e) {
+      print("Error fetching songs: $e");
+      return [];
     }
   }
 
@@ -200,62 +88,66 @@ class PlayerController extends GetxController {
     return null;
   }
 
+  Future<void> setPlaylistAndPlaySong(List<ExtendedSongModel> songs, int index) async {
+    try {
+      // Clear previous song list and playlist
+      songList.clear();
+      playList.value = songs;
+
+      for (var song in songs) {
+        songList.add(AudioSource.uri(
+          Uri.parse(song.uri!),
+          tag: MediaItem(
+            id: song.id.toString(),
+            album: song.album ?? "Unknown Album",
+            title: song.displayNameWOExt,
+            artUri: song.artworkUri,
+          ),
+        ));
+      }
+
+      await audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(children: songList),
+        initialIndex: index,
+      );
+
+      currentIndex.value = index;
+      playingSong.value = playList[index];
+
+      await audioPlayer.play();
+      isPlaying.value = true;
+    } catch (e) {
+      print("Error setting playlist and playing song: $e");
+    }
+  }
+
+   togglePlayPause() {
+    if (audioPlayer.playing) {
+      audioPlayer.pause();
+      isPlaying.value = false;
+    } else {
+      audioPlayer.play();
+      isPlaying.value = true;
+    }
+  }
+
   void toggleShuffleMode() {
     isShuffle.value = !isShuffle.value;
-    setShuffleMode();
-  }
-
-  Future<void> setShuffleMode() async {
-    if (audioPlayer.shuffleModeEnabled == true) {
-      audioPlayer.setShuffleModeEnabled(false);
-    } else {
-      audioPlayer.setShuffleModeEnabled(true);
-    }
-
-    _broadcastState(audioPlayer.playerState);
-  }
-
-  Future<void> playSong(String? uri, int initialIndex) async {
-    isPlaying.value = true;
-    try {
-      currentIndex.value = initialIndex;
-      if (playingSong.value != null) {
-        for (var song in playList) {
-          songList.add(
-            AudioSource.uri(
-              Uri.parse(song.uri!),
-              tag: MediaItem(
-                id: song.id.toString(),
-                album: song.album ?? "No Album",
-                title: song.displayNameWOExt,
-                artUri: song.artworkUri,
-              ),
-            ),
-          );
-        }
-
-        await audioPlayer.setAudioSource(
-          ConcatenatingAudioSource(children: songList),
-          initialIndex: initialIndex,
-        );
-
-        await audioPlayer.play();
-      }
-      HomeController().setIsShowPlayingData(true);
-    } catch (e) {
-      print("Error playing song: $e");
-    }
+    audioPlayer.setShuffleModeEnabled(isShuffle.value);
   }
 
   void toggleLoopMode() {
-    if (loopMode.value == LoopMode.off) {
-      loopMode.value = LoopMode.one;
-    } else if (loopMode.value == LoopMode.one) {
-      loopMode.value = LoopMode.all;
-    } else {
-      loopMode.value = LoopMode.off;
-    }
+    loopMode.value =
+        LoopMode.values[(loopMode.value.index + 1) % LoopMode.values.length];
     audioPlayer.setLoopMode(loopMode.value);
+  }
+
+  Future<void> playNextSong() async {
+    await audioPlayer.seekToNext();
+  }
+
+  Future<void> playPreviousSong() async {
+    await audioPlayer.seekToPrevious();
   }
 
   @override
@@ -263,29 +155,4 @@ class PlayerController extends GetxController {
     audioPlayer.dispose();
     super.onClose();
   }
-
-  togglePlayPause() {
-    if (audioPlayer.playing) {
-      isPlaying.value = false;
-      audioPlayer.pause();
-    } else {
-      isPlaying.value = true;
-
-      audioPlayer.play();
-    }
-  }
-}
-
-class PlaybackState {
-  final ProcessingState processingState;
-  final bool playing;
-  final int currentIndex;
-  final ExtendedSongModel? playingSong;
-
-  PlaybackState({
-    this.processingState = ProcessingState.idle,
-    this.playing = false,
-    this.currentIndex = 0,
-    this.playingSong,
-  });
 }

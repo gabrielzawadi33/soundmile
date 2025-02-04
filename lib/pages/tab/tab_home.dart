@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -217,14 +218,14 @@ class _TabHomeState extends State<TabHome> {
           children: [
             getCustomFont("All Music", 18.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
-            GestureDetector(
-              onTap: () {
+            IconButton(
+              onPressed: () {
                 Get.to(
                   AllMusicPage(),
                   transition: Transition.rightToLeftWithFade,
                 );
               },
-              child: Row(
+              icon: Row(
                 children: [
                   getCustomFont("View All", 12.sp, textColor, 1,
                       fontWeight: FontWeight.w700),
@@ -235,7 +236,7 @@ class _TabHomeState extends State<TabHome> {
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ).paddingSymmetric(horizontal: 20.h),
         getVerSpace(20.h),
@@ -272,21 +273,13 @@ class _TabHomeState extends State<TabHome> {
                     ? 40
                     : playerController.allSongs.length,
                 itemBuilder: (context, index) {
+                  final allSongs = playerController.allSongs;
                   SongModel song = playerController.allSongs[index];
 
                   return GestureDetector(
                     onTap: () async {
-                      playerController.playList.value =
-                          playerController.allSongs;
-                      playerController.initialIndex.value = index;
-                      playerController.playingSong.value =
-                          playerController.allSongs[index];
-                      playerController.playSong(
-                          playerController.playingSong.value?.uri!,
-                          playerController.initialIndex.value);
-                         homeController.setIsShowPlayingData(true);
-                          
-                      // Get.to(() => MusicPlayer());
+                      playerController.setPlaylistAndPlaySong(allSongs, index);
+                      homeController.setIsShowPlayingData(true);
                     },
                     child: Container(
                       padding: EdgeInsets.all(12.h),
@@ -308,7 +301,7 @@ class _TabHomeState extends State<TabHome> {
                               nullArtworkWidget: ClipRRect(
                                 borderRadius: BorderRadius.circular(22.h),
                                 child: Image.asset(
-                                  'assets/images/headphones.jpg', // Path to your asset imageA
+                                  'assets/images/headphones.png', // Path to your asset imageA
                                   fit: BoxFit.cover,
                                   height: 60.h,
                                   width: 60.h,
@@ -334,12 +327,12 @@ class _TabHomeState extends State<TabHome> {
                               ],
                             ),
                           ),
-                          getHorSpace(12.h),
-                          Icon(
-                            Icons.play_arrow,
-                            color: textColor,
-                            size: 30,
-                          ),
+                          // getHorSpace(12.h),
+                          // Icon(
+                          //   Icons.play_arrow,
+                          //   color: textColor,
+                          //   size: 30,
+                          // ),
                         ],
                       ),
                     ),
@@ -361,26 +354,26 @@ class _TabHomeState extends State<TabHome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            getCustomFont("Recently Added Music", 18.sp, textColor, 1,
+            getCustomFont("Recent Added Music", 18.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
-            GestureDetector(
-              onTap: () {
-                Get.to(
-                  AllRecentMusicPage(),
-                  transition: Transition.rightToLeftWithFade,
-                );
-              },
-              child: Row(
-                children: [
-                  getCustomFont("View All", 12.sp, textColor, 1,
-                      fontWeight: FontWeight.w700),
-                  getHorSpace(8.h),
-                  Icon(
+            Row(
+              children: [
+                getCustomFont("View All", 12.sp, textColor, 1,
+                    fontWeight: FontWeight.w700),
+                getHorSpace(8.h),
+                IconButton(
+                  onPressed: () {
+                    Get.to(
+                      AllRecentMusicPage(),
+                      transition: Transition.rightToLeftWithFade,
+                    );
+                  },
+                  icon: Icon(
                     CupertinoIcons.arrow_right,
                     color: textColor,
                   ),
-                ],
-              ),
+                ),
+              ],
             )
           ],
         ).paddingSymmetric(horizontal: 20.h),
@@ -389,7 +382,7 @@ class _TabHomeState extends State<TabHome> {
           height: 188.h,
           child: Obx(
             () {
-              if (playerController.allSongs.isEmpty) {
+              if (playerController.recentSongs.isEmpty) {
                 return const Text('No Songs available');
               } else {
                 return ListView.builder(
@@ -402,43 +395,28 @@ class _TabHomeState extends State<TabHome> {
                       : playerController.recentSongs.length,
                   itemBuilder: (context, index) {
                     // sor the sond according to their date of Modification
-                    List<ExtendedSongModel> popularSongs =
-                        playerController.recentSongs;
+                    final recentSongs = playerController.recentSongs;
 
                     // Get the song at the current index
-                    ExtendedSongModel popularSong = popularSongs[index];
+                    ExtendedSongModel recentSong = recentSongs[index];
                     return GestureDetector(
                       onTap: () async {
-                        playerController.playList.value = popularSongs;
-                        playerController.currentIndex.value = index;
-                        playerController.playingSong.value = popularSong;
-                        playerController.playSong(
-                            playerController.playingSong.value?.uri!,
-                            playerController.currentIndex.value);
-                           homeController.setIsShowPlayingData(true);
-                        // Get.to(() => MusicPlayer());
+                        playerController.setPlaylistAndPlaySong(
+                            recentSongs, index);
+                        homeController.setIsShowPlayingData(true);
                       },
                       child: Stack(
                         children: [
-                          SizedBox(
-                            height: 187.h,
-                            width: 120.h,
-                            child: QueryArtworkWidget(
-                              artworkBorder: BorderRadius.circular(22.h),
-                              id: popularSong.id,
-                              type: ArtworkType.AUDIO,
-                              artworkFit: BoxFit.cover,
-                              nullArtworkWidget: ClipRRect(
-                                borderRadius: BorderRadius.circular(22),
-                                child: Image.asset(
-                                  'assets/images/headphones.jpg', // Path to your asset image
-                                  fit: BoxFit.cover,
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                ),
+                          Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(22.h),
+                                color: secondaryColor,
                               ),
-                            ),
-                          ),
+                              height: 187.h,
+                              width: 120.h,
+                              child:
+                              buildRecentImage(context, recentSong.id)
+                              ),
                           Positioned(
                             bottom: 2,
                             child: SizedBox(
@@ -449,14 +427,14 @@ class _TabHomeState extends State<TabHome> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     getCustomFont(
-                                        popularSong.title!, 12.sp, textColor, 1,
+                                        recentSong.title!, 12.sp, textColor, 1,
                                         fontWeight: FontWeight.w700),
                                     getVerSpace(1.h),
                                     Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 8.0),
                                       child: getCustomFont(
-                                        popularSong.artist!,
+                                        recentSong.artist!,
                                         8.sp,
                                         Colors.white,
                                         1,
@@ -604,9 +582,14 @@ class _TabHomeState extends State<TabHome> {
             22.sp,
           ),
         ),
-        IconButton(onPressed: (){
-          Get.to(SearchScreen(), transition: Transition.rightToLeft); 
-        }, icon: Icon(CupertinoIcons.search, color: textColor,)),
+        IconButton(
+            onPressed: () {
+              Get.to(SearchScreen(), transition: Transition.rightToLeft);
+            },
+            icon: Icon(
+              CupertinoIcons.search,
+              color: textColor,
+            )),
         // Icon(
         //   Icons.notifications_none,
         //   color: textColor,

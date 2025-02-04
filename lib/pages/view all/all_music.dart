@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:sound_mile/model/extended_song_model.dart';
 
 import '../../controllers/audio_controller.dart';
 import '../../controllers/player_controller.dart';
@@ -30,8 +31,11 @@ class _AllMusicPageState extends State<AllMusicPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        bottomNavigationBar: buildBottomMusicBar(),
         backgroundColor: bgDark,
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             getVerSpace(10.h),
             getAppBar(() {
@@ -59,17 +63,14 @@ class _AllMusicPageState extends State<AllMusicPage> {
                   padding: EdgeInsets.only(right: 20.h, left: 6.h),
                   itemCount: playerController.allSongs.length,
                   itemBuilder: (context, index) {
-                    SongModel song = playerController.allSongs[index];
+                    final allSongs = playerController.allSongs;
+                    ExtendedSongModel song = playerController.allSongs[index];
                     return GestureDetector(
                       onTap: () async {
-                        playerController.playList.value =
-                            playerController.allSongs;
-                        playerController.initialIndex.value = index;
-                        playerController.playingSong.value =
-                            playerController.allSongs[index];
-                        playerController.playSong(
-                            playerController.playingSong.value?.uri!,
-                            playerController.initialIndex.value);
+                        playerController.setPlaylistAndPlaySong(
+                            allSongs, index);
+
+                        homeController.setIsShowPlayingData(true);
                         Get.to(() => MusicPlayer());
                       },
                       child: Container(
@@ -92,7 +93,7 @@ class _AllMusicPageState extends State<AllMusicPage> {
                                 nullArtworkWidget: ClipRRect(
                                   borderRadius: BorderRadius.circular(22.h),
                                   child: Image.asset(
-                                    'assets/images/headphones.jpg', // Path to your asset imageA
+                                    'assets/images/headphones.png', // Path to your asset imageA
                                     fit: BoxFit.cover,
                                     height: 60.h,
                                     width: 60.h,
@@ -118,12 +119,12 @@ class _AllMusicPageState extends State<AllMusicPage> {
                                 ],
                               ),
                             ),
-                            getHorSpace(12.h),
-                            Icon(
-                              Icons.play_arrow,
-                              color: textColor,
-                              size: 30,
-                            ),
+                            // getHorSpace(12.h),
+                            // Icon(
+                            //   Icons.play_arrow,
+                            //   color: textColor,
+                            //   size: 30,
+                            // ),
                           ],
                         ),
                       ),

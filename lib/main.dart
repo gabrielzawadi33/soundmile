@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:sound_mile/controllers/home_conroller.dart';
 import 'package:sound_mile/splash_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/pref_data.dart';
@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    playerController.loadPlayingSong();
+    // playerController.loadPlayingSong();
   }
 
   @override
@@ -44,8 +44,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
-      playerController.savePlayingSong();
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      HomeController().setIsShowPlayingData(false);
     }
   }
 

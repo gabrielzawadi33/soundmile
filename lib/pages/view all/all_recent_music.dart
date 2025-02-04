@@ -32,6 +32,7 @@ class _AllRecentMusicPageState extends State<AllRecentMusicPage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: bgDark,
+        bottomNavigationBar: buildBottomMusicBar(),
         body: Column(
           children: [
             getVerSpace(10.h),
@@ -68,75 +69,61 @@ class _AllRecentMusicPageState extends State<AllRecentMusicPage> {
                       : playerController.recentSongs.length,
                   itemBuilder: (context, index) {
                     // sor the sond according to their date of Modification
-                    List<ExtendedSongModel> popularSongs =
+                    List<ExtendedSongModel> recentSongs =
                         playerController.recentSongs;
 
                     // Get the song at the current index
-                    ExtendedSongModel popularSong = popularSongs[index];
+                    ExtendedSongModel recentSong = recentSongs[index];
                     return GestureDetector(
                       onTap: () async {
-                        playerController.playList.value = popularSongs;
-                        playerController.currentIndex.value = index;
-                        playerController.playingSong.value = popularSong;
-                        playerController.playSong(
-                            playerController.playingSong.value?.uri!,
-                            playerController.currentIndex.value);
+                        playerController.setPlaylistAndPlaySong(recentSongs, index);
+                       
                         Get.to(() => MusicPlayer());
                       },
                       child: Stack(
                         children: [
-                          SizedBox(
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22.h),
+                              color: secondaryColor,
+                            ),
                             height: 187.h,
                             width: 120.h,
-                            child: QueryArtworkWidget(
-                              artworkBorder: BorderRadius.circular(22.h),
-                              id: popularSong.id,
-                              type: ArtworkType.AUDIO,
-                              artworkFit: BoxFit.cover,
-                              nullArtworkWidget: ClipRRect(
-                                borderRadius: BorderRadius.circular(22),
-                                child: Image.asset(
-                                  'assets/images/headphones.jpg', // Path to your asset image
-                                  fit: BoxFit.cover,
-                                  height: double.infinity,
-                                  width: double.infinity,
-                                ),
-                              ),
-                            ),
+                            child: buildRecentImage(context, recentSong.id)
                           ),
                           Positioned(
-                            bottom: 2,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: 100,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      getCustomFont(popularSong.title!, 10.sp,
-                                          textColor, 1,
-                                          fontWeight: FontWeight.w700),
-                                      getVerSpace(1.h),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 8.0),
-                                        child: getCustomFont(
-                                          popularSong.artist!,
-                                          8.sp,
-                                          Colors.white,
-                                          1,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      )
-                                    ],
+                              bottom: 2,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    width: 100,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        getCustomFont(recentSong.title!, 10.sp,
+                                            textColor, 1,
+                                            fontWeight: FontWeight.w700),
+                                        getVerSpace(1.h),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 8.0),
+                                          child: getCustomFont(
+                                            recentSong.artist!,
+                                            8.sp,
+                                            Colors.white,
+                                            1,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                          )
+                                ],
+                              ))
                         ],
                       ).paddingSymmetric(horizontal: 8.h),
                     );

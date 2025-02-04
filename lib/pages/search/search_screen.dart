@@ -10,6 +10,7 @@ import '../../controllers/home_conroller.dart';
 import '../../util/color_category.dart';
 import '../../util/constant.dart';
 import '../../util/constant_widget.dart';
+import '../player/music_player.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -49,6 +50,7 @@ class _HomeState extends State<SearchScreen> {
     var suffiximage;
     return SafeArea(
       child: Scaffold(
+        bottomNavigationBar: buildBottomMusicBar(),
         backgroundColor: bgDark,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -56,8 +58,9 @@ class _HomeState extends State<SearchScreen> {
             getVerSpace(30.h),
             getAppBar(() {
               backClick();
-            }, 'Sound Mile'),
-            getVerSpace(10.h),
+            }, 'Sound Mile')
+                .paddingSymmetric(horizontal: 10.h),
+            getVerSpace(30.h),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: CupertinoTextField(
@@ -100,18 +103,12 @@ class _HomeState extends State<SearchScreen> {
               itemCount: filteredSongs.length > 40 ? 40 : filteredSongs.length,
               itemBuilder: (context, index) {
                 ExtendedSongModel song = filteredSongs[index];
-
                 return GestureDetector(
                   onTap: () async {
-                    playerController.playList.value = filteredSongs;
-                    playerController.initialIndex.value = index;
-                    playerController.playingSong.value = filteredSongs[index];
-                    playerController.playSong(
-                        playerController.playingSong.value?.uri!,
-                        playerController.initialIndex.value);
-                    homeController.setIsShowPlayingData(true);
+                    playerController.setPlaylistAndPlaySong(filteredSongs, index);
 
-                    // Get.to(() => MusicPlayer());
+                    homeController.setIsShowPlayingData(true);
+                    Get.to(() => MusicPlayer());
                   },
                   child: Container(
                     padding: EdgeInsets.all(12.h),
@@ -133,7 +130,7 @@ class _HomeState extends State<SearchScreen> {
                             nullArtworkWidget: ClipRRect(
                               borderRadius: BorderRadius.circular(22.h),
                               child: Image.asset(
-                                'assets/images/headphones.jpg', // Path to your asset image
+                                'assets/images/headphones.png', // Path to your asset image
                                 fit: BoxFit.cover,
                                 height: 60.h,
                                 width: 60.h,
@@ -181,16 +178,21 @@ class _HomeState extends State<SearchScreen> {
     return Container(
       child: Row(
         children: [
-          GestureDetector(
-              onTap: () {
-                function();
-              },
-              child: getSvgImage("arrow_back.svg", height: 24.h, width: 24.h)),
+          IconButton(
+            onPressed: () {
+              function();
+            },
+            icon: Icon(
+              CupertinoIcons.arrow_left,
+              color: textColor,
+            ),
+          ),
           getHorSpace(20.h),
           SizedBox(
-              width: 0.7.sw,
-              child: getCustomFont(title, 20.sp, textColor, 1,
-                  fontWeight: FontWeight.w700)),
+            width: 0.7.sw,
+            child: getCustomFont(title, 20.sp, textColor, 1,
+                fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );

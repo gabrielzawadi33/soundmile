@@ -85,12 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Obx(
       () {
         return SizedBox(
-          height: (homeController
-                  .isShowPlayingSong.value && playerController.playingSong != null) ? 60.h : 0.h,
+          height: (homeController.isShowPlayingSong.value )
+              ? 60.h
+              : 0.h,
           child: Stack(
             children: [
-              if (homeController
-                  .isShowPlayingSong.value && playerController.playingSong != null) // Show only if isPlaying is true
+              if (homeController.isShowPlayingSong.value)
                 Positioned(
                   top: 0.h,
                   left: 0,
@@ -123,12 +123,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: QueryArtworkWidget(
                               artworkBorder: BorderRadius.circular(22.h),
-                              id: playerController.playingSong.value?.id?? 0,
+                              id: playerController.playingSong.value?.id ?? 0,
                               type: ArtworkType.AUDIO,
                               nullArtworkWidget: ClipRRect(
                                 borderRadius: BorderRadius.circular(22.h),
                                 child: Image.asset(
-                                  'assets/images/headphones.jpg', // Path to your asset imageA
+                                  'assets/images/headphones.png', // Path to your asset imageA
                                   fit: BoxFit.cover,
                                   height: 60.h,
                                   width: 60.h,
@@ -142,14 +142,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 getCustomFont(
-                                    playerController.playbackState.value.playingSong?.title ?? '',
+                                    playerController.playingSong.value?.title ??
+                                        '',
                                     10.sp,
                                     Colors.white,
                                     1,
                                     fontWeight: FontWeight.w700),
                                 getVerSpace(6.h),
                                 getCustomFont(
-                                  "${playerController.playbackState.value.playingSong?.artist ?? ''}  ",
+                                  "${playerController.playingSong.value?.artist ?? ''}  ",
                                   8.sp,
                                   searchHint,
                                   1,
@@ -170,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.white,
                                 ),
                                 onPressed: () async {
-                                  await playerController.homePlayPause();
+                                  await playerController.togglePlayPause();
                                 },
                               )),
                           IconButton(
