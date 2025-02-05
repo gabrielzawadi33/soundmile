@@ -33,7 +33,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // playerController.loadPlayingSong();
   }
 
   @override
@@ -42,13 +41,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      HomeController().setIsShowPlayingData(false);
+@override
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+    if (playerController.playingSong.value != null) {
+      playerController.saveLastPlayedSong(playerController.playingSong.value!);
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -1,16 +1,41 @@
+import 'package:audio_service/audio_service.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:sound_mile/util/constant_widget.dart';
 
+import '../controllers/home_conroller.dart';
+import '../controllers/player_controller.dart';
 import '../model/extended_song_model.dart';
 
 class PrefData {
+    final AudioPlayer audioPlayer = AudioPlayer();
   static const String _usernameKey = "username";
   static const String _idKey = "id";
   static const String _permission = "isPrermitted";
   static const String _isShowPlayingKey = "isShowPlaying";
   static const String _email = "";
   static const String _playingSongKey = "playingSong";
+        /// Save currently playing song in SharedPreferences
+  Future<void> saveLastPlayedSong(ExtendedSongModel song) async {
+    final prefs = await SharedPreferences.getInstance();
+    String songJson = jsonEncode(song.toJson()); // Convert song to JSON
+    await prefs.setString('last_played_song', songJson);
+  }
+
+  /// Load last played song from SharedPreferences
+  Future<ExtendedSongModel> loadLastPlayedSong() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? songJson = prefs.getString('last_played_song');
+
+    
+      Map<String, dynamic> songMap = jsonDecode(songJson!);
+      ExtendedSongModel lastPlayedSong = ExtendedSongModel.fromJson(songMap);
+    
+return lastPlayedSong;
+
+  }
 
   static Future<void> initializeDefaults() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

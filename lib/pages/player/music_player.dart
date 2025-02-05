@@ -432,7 +432,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                       color: textColor,
                     ),
                     onPressed: () async {
-                      await playerController.togglePlayPause();
+                      playerController.togglePlayPause();
                     },
                   )),
               getHorSpace(30.h),

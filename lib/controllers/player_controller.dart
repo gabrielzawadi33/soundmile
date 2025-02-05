@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sound_mile/controllers/home_conroller.dart';
 import 'package:sound_mile/model/extended_song_model.dart';
 import 'package:sound_mile/util/pref_data.dart';
@@ -32,14 +34,44 @@ class PlayerController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    loadLastPlayedSong(); // Load last played song before initializing listeners
     _initPlayerListener();
   }
+
+  void saveLastPlayedSong(ExtendedSongModel song) async {
+    await prefData.saveLastPlayedSong(song);
+  }
+
+Future<void> loadLastPlayedSong() async {
+  ExtendedSongModel? lastPlayedSong = await prefData.loadLastPlayedSong();
+
+  if (lastPlayedSong != null) {
+    playingSong.value = lastPlayedSong;
+
+    await audioPlayer.setAudioSource(
+      AudioSource.uri(
+        Uri.parse(lastPlayedSong.uri!),
+        tag: MediaItem(
+          id: lastPlayedSong.id.toString(),
+          album: lastPlayedSong.album ?? "Unknown Album",
+          title: lastPlayedSong.displayNameWOExt,
+          artUri: lastPlayedSong.artworkUri,
+        ),
+      ),
+    );
+
+    currentIndex.value = playList.indexWhere((song) => song.id == lastPlayedSong.id);
+  }
+}
+
+  
 
   void _initPlayerListener() {
     audioPlayer.currentIndexStream.listen((index) {
       if (index != null && index < playList.length) {
         currentIndex.value = index;
         playingSong.value = playList[index];
+        saveLastPlayedSong(playList[index]); // Save song when changed
       }
     });
 
@@ -61,12 +93,13 @@ class PlayerController extends GetxController {
 
       for (var song in fetchedSongs) {
         String? artworkUri = await fetchArtworkUri(song.id);
-        allSongs.add(ExtendedSongModel.fromSongModel(song, artworkUri != null ? Uri.parse(artworkUri) : null));
+        allSongs.add(ExtendedSongModel.fromSongModel(
+            song, artworkUri != null ? Uri.parse(artworkUri) : null));
       }
 
       recentSongs.value = allSongs.toList()
         ..sort((a, b) => b.dateModified!.compareTo(a.dateModified!));
-        return allSongs.value;
+      return allSongs.value;
     } catch (e) {
       print("Error fetching songs: $e");
       return [];
@@ -88,9 +121,9 @@ class PlayerController extends GetxController {
     return null;
   }
 
-  Future<void> setPlaylistAndPlaySong(List<ExtendedSongModel> songs, int index) async {
+  Future<void> setPlaylistAndPlaySong(
+      List<ExtendedSongModel> songs, int index) async {
     try {
-      // Clear previous song list and playlist
       songList.clear();
       playList.value = songs;
 
@@ -121,15 +154,25 @@ class PlayerController extends GetxController {
     }
   }
 
-   togglePlayPause() {
-    if (audioPlayer.playing) {
-      audioPlayer.pause();
-      isPlaying.value = false;
+void togglePlayPause() {
+  if (audioPlayer.playing) {
+    audioPlayer.pause();
+    isPlaying.value = false;
+  } else {
+    if (audioPlayer.currentIndex == null) {
+      // Try to set audio source again if not set
+      if (playList.isNotEmpty) {
+        setPlaylistAndPlaySong(playList, currentIndex.value);
+      }
     } else {
       audioPlayer.play();
       isPlaying.value = true;
     }
+    print("Loading song from URI: ${playingSong.value?.uri}");
+
   }
+}
+
 
   void toggleShuffleMode() {
     isShuffle.value = !isShuffle.value;

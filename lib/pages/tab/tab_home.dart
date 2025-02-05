@@ -342,6 +342,29 @@ class _TabHomeState extends State<TabHome> {
             }
           },
         ),
+        const SizedBox(height: 25),
+        Center(
+          child: SizedBox(
+            height: 50, // Set the desired height
+            width: 150, // Set the desired width
+            child: MaterialButton(
+              onPressed: () {
+                Get.to(
+                  AllMusicPage(),
+                  transition: Transition.rightToLeftWithFade,
+                );
+              },
+              child: Text(
+                'View All',
+                style: TextStyle(color: textColor),
+              ),
+              color: secondaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8), // Set the desired border radius
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
@@ -414,9 +437,7 @@ class _TabHomeState extends State<TabHome> {
                               ),
                               height: 187.h,
                               width: 120.h,
-                              child:
-                              buildRecentImage(context, recentSong.id)
-                              ),
+                              child: buildRecentImage(context, recentSong.id)),
                           Positioned(
                             bottom: 2,
                             child: SizedBox(

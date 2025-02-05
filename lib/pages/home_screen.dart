@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
 
@@ -18,11 +20,8 @@ import '../dataFile/data_file.dart';
 class HomeScreen extends StatefulWidget {
   // final User? user;
   HomeScreen({
-    // void backClick() {
-    //   Constant.closeApp();
-    // }
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
   final user = Get.arguments;
 
   @override
@@ -35,6 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
   PlayerController playerController = Get.put(PlayerController());
   HomeController homeController = Get.put(HomeController());
   bool isShowPlaying = true;
+  void backClick() {
+    Constant.backToPrev(context);
+  }
 
   // void backClick() {
   //   Constant.closeApp();
@@ -58,7 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Constant.setupSize(context);
     return WillPopScope(
       onWillPop: () async {
-        // backClick();
+        // Close the app
+        SystemNavigator.pop();
         return false;
       },
       child: GetBuilder<HomeController>(
@@ -85,9 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Obx(
       () {
         return SizedBox(
-          height: (homeController.isShowPlayingSong.value )
-              ? 60.h
-              : 0.h,
+          height: (homeController.isShowPlayingSong.value) ? 60.h : 0.h,
           child: Stack(
             children: [
               if (homeController.isShowPlayingSong.value)
@@ -104,18 +105,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         curve: Curves.easeInOut,
                       );
                     },
-                    child: Container(
-                      padding: EdgeInsets.all(6.h),
-                      margin: EdgeInsets.only(bottom: 10.h),
-                      decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.75),
-                        // borderRadius: BorderRadius.circular(22.h),
-                      ),
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      // padding: EdgeInsets.all(6.h),
+                      // margin: EdgeInsets.only(bottom: 10.h),
+                      // decoration: BoxDecoration(
+                      //   color: accentColor.withOpacity(0.75),
+                      //   // borderRadius: BorderRadius.circular(22.h),
+                      // ),
+
+                      color: accentColor,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           getHorSpace(12.h),
                           Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5),
                             height: 50.h,
                             width: 50.h,
                             decoration: BoxDecoration(
@@ -138,25 +143,59 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           getHorSpace(12.h),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                getCustomFont(
-                                    playerController.playingSong.value?.title ??
+                            child: Dismissible(
+                              key: UniqueKey(),
+                              direction: DismissDirection.horizontal,
+                              onDismissed: (direction) {
+                                if (direction ==
+                                    DismissDirection.endToStart) {
+                                  playerController.playNextSong();
+                                } else if (direction ==
+                                    DismissDirection.startToEnd) {
+                                  playerController.playPreviousSong();
+                                }
+                              },
+                              background: Container(
+                                alignment: Alignment.centerLeft,
+                                // color: Colors.green,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: Icon(Icons.arrow_back,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              secondaryBackground: Container(
+                                alignment: Alignment.centerRight,
+                                // color: Colors.red,
+                                
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 16.0),
+                                  child: Icon(Icons.arrow_forward,
+                                      color: Colors.white),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  getCustomFont(
+                                    playerController
+                                            .playingSong.value?.title ??
                                         '',
                                     10.sp,
                                     Colors.white,
                                     1,
-                                    fontWeight: FontWeight.w700),
-                                getVerSpace(6.h),
-                                getCustomFont(
-                                  "${playerController.playingSong.value?.artist ?? ''}  ",
-                                  8.sp,
-                                  searchHint,
-                                  1,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ],
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  getVerSpace(6.h),
+                                  getCustomFont(
+                                    "${playerController.playingSong.value?.artist ?? ''}  ",
+                                    8.sp,
+                                    searchHint,
+                                    1,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           getHorSpace(12.h),
@@ -164,22 +203,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           Obx(() => IconButton(
                                 icon: Icon(
-                                  playerController.isPlaying.value
+                                  AudioPlayer().playing
                                       ? CupertinoIcons.pause
                                       : CupertinoIcons.play_arrow,
                                   // size: 72.h,
                                   color: Colors.white,
                                 ),
                                 onPressed: () async {
-                                  await playerController.togglePlayPause();
+                                  playerController.togglePlayPause();
                                 },
                               )),
-                          IconButton(
-                              onPressed: () {
-                                homeController.setIsShowPlayingData(false);
-                              },
-                              icon: Icon(CupertinoIcons.clear,
-                                  color: Colors.white, size: 18)),
+                          if (!AudioPlayer().playing) ...[
+                            IconButton(
+                                onPressed: () {
+                                  homeController.setIsShowPlayingData(false);
+                                },
+                                // ignore: prefer_const_constructors
+                                icon: Icon(CupertinoIcons.clear,
+                                    color: Colors.white, size: 18)),
+                          ],
+
                           getHorSpace(5.h),
                         ],
                       ),
