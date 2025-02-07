@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(10.0),
                         side: BorderSide(
                           color: secondaryColor,
-                          width: 0.3,
+                          width: 0.3.w,
                         ),
                       ),
                       color: accentColor,
@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   margin:
                                       const EdgeInsets.symmetric(vertical: 5),
                                   height: 50.h,
-                                  width: 50.h,
+                                  width: 50.w,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11.h),
                                   ),
@@ -195,14 +195,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                         'assets/images/headphones.png',
                                         fit: BoxFit.cover,
                                         height: 60.h,
-                                        width: 60.h,
+                                        width: 60.w,
                                       ),
                                     ),
                                   ),
                                 ),
                                 getHorSpace(12.h),
                                 SizedBox(
-                                  width: 270,
+                                  width: 270.w,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,

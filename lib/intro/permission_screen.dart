@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
@@ -31,11 +32,9 @@ class _PermissionPageState extends State<PermissionPage> {
 
   Future<void> requestPermission() async {
     try {
-      print('Requesting permission...');
       if (Platform.isAndroid) {
 
         final double androidVersion = await _getAndroidVersion();
-        print(androidVersion);
         // Extract the major version number correctly
         // String versionString = Platform.version.split(' ')[0];
         // int androidVersion = int.parse(versionString.split('.')[0]);
@@ -50,7 +49,6 @@ class _PermissionPageState extends State<PermissionPage> {
         ];
 
         final statuses = await permissions.request();
-        print('Permission statuses: $statuses');
 
         if (statuses.values.every((status) => status.isGranted)) {
           onPermissionGranted();
@@ -59,14 +57,10 @@ class _PermissionPageState extends State<PermissionPage> {
         }
         } else {
           // For Android versions below 13
-          final status = await Permission.storage.status;
-          print('Storage permission status: $status');
-
-          if (status.isGranted) {
+          final status = await Permission.storage.status;          if (status.isGranted) {
             onPermissionGranted();
           } else if (status.isDenied || status.isPermanentlyDenied) {
             final requestStatus = await Permission.storage.request();
-            print('Requested storage permission status: $requestStatus');
             if (requestStatus.isGranted) {
               onPermissionGranted();
             } else {
@@ -167,23 +161,22 @@ class _PermissionPageState extends State<PermissionPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          getAssetImage('permission.png'),
-          const SizedBox(height: 20),
+          getSvgImage('permission.svg',height: 100.h),
+          SizedBox(height: 20.h),
           Text(
             'Sound Mile requires storage permission to access and play music.',
-            style: TextStyle(fontSize: 16, color: textColor),
+            style: TextStyle(fontSize: 14, color: textColor),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 90),
+          SizedBox(height: 200.h),
           FloatingActionButton.extended(
             onPressed: requestPermission,
             label: Text(
               'Allow',
-              style: TextStyle(color: accentColor),
+              style: TextStyle(color: bgDark),
             ),
-            icon: Icon(Icons.perm_media, color: accentColor),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
         ],
       ),
     );

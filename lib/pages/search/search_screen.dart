@@ -76,7 +76,7 @@ class _HomeState extends State<SearchScreen> {
                     borderRadius: BorderRadius.circular(22.h), color: lightBg),
                 padding: EdgeInsets.symmetric(vertical: 17.h, horizontal: 20.h),
                 suffix: getSvgImage(suffiximage.toString(),
-                        width: 24.h, height: 24.h)
+                        width: 24.w, height: 24.h)
                     .paddingOnly(right: 18.h),
                 prefix: Padding(
                   padding: const EdgeInsets.only(left: 10.0),
@@ -120,7 +120,7 @@ class _HomeState extends State<SearchScreen> {
                       children: [
                         Container(
                           height: 60.h,
-                          width: 60.h,
+                          width: 60.w,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(22.h),
                           ),
@@ -134,7 +134,7 @@ class _HomeState extends State<SearchScreen> {
                                 'assets/images/headphones.png', // Path to your asset image
                                 fit: BoxFit.cover,
                                 height: 60.h,
-                                width: 60.h,
+                                width: 60.w,
                               ),
                             ),
                           ),
@@ -190,7 +190,7 @@ class _HomeState extends State<SearchScreen> {
           ),
           getHorSpace(20.h),
           SizedBox(
-            width: 0.7.sw,
+            width: 0.7.w,
             child: getCustomFont(title, 20.sp, textColor, 1,
                 fontWeight: FontWeight.w700),
           ),

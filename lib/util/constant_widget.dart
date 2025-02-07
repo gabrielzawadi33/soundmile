@@ -31,7 +31,7 @@ showToast(String s, BuildContext context) {
 
         backgroundColor: secondaryColor,
         textColor: textColor,
-        fontSize: 12);
+        fontSize: 12.sp);
 
     // Toast.show(s, context,
     //     duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
@@ -181,7 +181,7 @@ buildBottomMusicBar() {
                       borderRadius: BorderRadius.circular(10.0),
                       side: BorderSide(
                         color: secondaryColor,
-                        width: 0.3,
+                        width: 0.3.w,
                       ),
                     ),
                     color: accentColor,
@@ -244,7 +244,7 @@ buildBottomMusicBar() {
                               Container(
                                 margin: const EdgeInsets.symmetric(vertical: 5),
                                 height: 50.h,
-                                width: 50.h,
+                                width: 50.w,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(11.h),
                                 ),
@@ -259,14 +259,14 @@ buildBottomMusicBar() {
                                       'assets/images/headphones.png',
                                       fit: BoxFit.cover,
                                       height: 60.h,
-                                      width: 60.h,
+                                      width: 60.w,
                                     ),
                                   ),
                                 ),
                               ),
                               getHorSpace(12.h),
                               SizedBox(
-                                width: 270,
+                                width: 270.w,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -453,7 +453,7 @@ Widget getSearchWidget(
                     imagefunction!();
                   },
                   child: getSvgImage(suffiximage.toString(),
-                          width: 24.h, height: 24.h)
+                          width: 24.w, height: 24.h)
                       .paddingOnly(right: 18.h))
               : null,
           prefix: isprefix == true ? prefix : null,
@@ -626,19 +626,19 @@ Widget defaultTextField(
       hintStyle: TextStyle(
           color: hintColor, fontSize: 16.sp, fontWeight: FontWeight.w400),
       border: UnderlineInputBorder(
-        borderSide: BorderSide(color: dividerColor, width: 1.h),
+        borderSide: BorderSide(color: dividerColor, width: 1.w),
       ),
       enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: dividerColor, width: 1.h),
+        borderSide: BorderSide(color: dividerColor, width: 1.w),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: accentColor, width: 1.h),
+        borderSide: BorderSide(color: accentColor, width: 1.w),
       ),
       errorBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: errorColor, width: 1.h),
+        borderSide: BorderSide(color: errorColor, width: 1.w),
       ),
       focusedErrorBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: errorColor, width: 1.h),
+        borderSide: BorderSide(color: errorColor, width: 1.w),
       ),
       errorStyle: TextStyle(
           color: errorColor, fontSize: 12.sp, fontWeight: FontWeight.w400),
@@ -649,7 +649,7 @@ Widget defaultTextField(
           size: 24.h,
         ),
       ),
-      prefixIconConstraints: BoxConstraints(maxHeight: 24.h, maxWidth: 60.h),
+      prefixIconConstraints: BoxConstraints(maxHeight: 24.h, maxWidth: 60.w),
       filled: true,
       suffixIcon: isPass
           ? IconButton(
@@ -692,25 +692,25 @@ Widget getProfileTextField(
       hintStyle: TextStyle(
           color: searchHint, fontSize: 16.sp, fontWeight: FontWeight.w400),
       border: UnderlineInputBorder(
-        borderSide: BorderSide(color: dividerColor, width: 1.h),
+        borderSide: BorderSide(color: dividerColor, width: 1.w),
       ),
       enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: dividerColor, width: 1.h),
+        borderSide: BorderSide(color: dividerColor, width: 1.w),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: accentColor, width: 1.h),
+        borderSide: BorderSide(color: accentColor, width: 1.w),
       ),
       errorBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: errorColor, width: 1.h),
+        borderSide: BorderSide(color: errorColor, width: 1.w),
       ),
       focusedErrorBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: errorColor, width: 1.h),
+        borderSide: BorderSide(color: errorColor, width: 1.w),
       ),
       errorStyle: TextStyle(
           color: errorColor, fontSize: 12.sp, fontWeight: FontWeight.w400),
-      prefixIcon: getSvgImage(prefixImage, width: 24.h, height: 24.h)
+      prefixIcon: getSvgImage(prefixImage, width: 24.h, height: 24.w)
           .paddingSymmetric(horizontal: 18.h),
-      prefixIconConstraints: BoxConstraints(maxHeight: 24.h, maxWidth: 60.h),
+      prefixIconConstraints: BoxConstraints(maxHeight: 24.h, maxWidth: 60.w),
       filled: true,
     ),
     keyboardType: keyboardType,
@@ -900,7 +900,7 @@ Widget getMultilineCustomFont(String text, double fontSize, Color fontColor,
 
 Widget getToolbarWithIcon(Function function) {
   return Stack(alignment: Alignment.topCenter, children: [
-    getSvgImage("mfariji.svg", width: 60.h, height: 80.h),
+    getSvgImage("mfariji.svg", width: 60.w, height: 80.w),
     // getAssetImage("splash_logo.png", height: 88.h, width: 68.h),
     // getSvgImage(image)
     Align(
@@ -909,7 +909,7 @@ Widget getToolbarWithIcon(Function function) {
             onTap: () {
               function();
             },
-            child: getSvgImage("arrow_back.svg", width: 24.h, height: 24.h)))
+            child: getSvgImage("arrow_back.svg", width: 24.w, height: 24.w)))
   ]);
 }
 
@@ -969,7 +969,7 @@ Widget getProfileWidget(Function function, String image, String name) {
       children: [
         Row(
           children: [
-            getSvgImage(image, width: 24.h, height: 24.h)
+            getSvgImage(image, width: 24.w, height: 24.w)
                 .marginOnly(left: 18.h),
             getHorSpace(18.h),
             Expanded(
@@ -977,7 +977,7 @@ Widget getProfileWidget(Function function, String image, String name) {
               child: getCustomFont(name, 16.sp, hintColor, 1,
                   fontWeight: FontWeight.w400),
             ),
-            getSvgImage("arrow_right.svg", height: 16.h, width: 16.h)
+            getSvgImage("arrow_right.svg", height: 16.h, width: 16.w)
           ],
         ).paddingOnly(top: 20.h, bottom: 16.h),
         getDivider(setColor: dividerColor)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:sound_mile/pages/home_screen.dart';
 import 'package:sound_mile/intro/permission_screen.dart';
@@ -51,24 +52,16 @@ class _SplashScreenState extends State<SplashScreen> {
           // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             SizedBox(
-              height: 300,
+              height: 300.h,
             ),
-            // SizedBox(
-            //   height: 150,
-            //   width: 150,
-            //   child: getSvgImage('mile.svg')),
-//  getCustomFont('Sound Mile', 30, textColor, 1),
-            SizedBox(
-              height: 100,
-              width: 100,
-              child: ClipOval(
-                child: getAssetImage(
-                  'mile.png',
-                ),
+            ClipOval(
+              child: getAssetImage(
+                'mile.png',
+                 height: 100.h,
               ),
             ),
             SizedBox(
-              height: 280,
+              height: 280.h,
             ),
             
            

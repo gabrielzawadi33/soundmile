@@ -22,7 +22,7 @@ class ShimmerArtistList extends StatelessWidget {
               top: 20.h,
             ),
             height: 207.h,
-            width: 107.h,
+            width: 107.w,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22.h),
               color: Colors.grey[300],
@@ -40,7 +40,7 @@ class ShimmerArtistList extends StatelessWidget {
                 getVerSpace(5.h),
                 Center(
                   child: Container(
-                    width: 80.h,
+                    width: 80.w,
                     height: 10.h,
                     color: Colors.grey[300],
                   ),
@@ -48,7 +48,7 @@ class ShimmerArtistList extends StatelessWidget {
                 getVerSpace(2.h),
                 Center(
                   child: Container(
-                    width: 60.h,
+                    width: 60.w,
                     height: 8.h,
                     color: Colors.grey[300],
                   ),

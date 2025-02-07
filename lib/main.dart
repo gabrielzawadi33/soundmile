@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio_background/just_audio_background.dart';import 'package:sound_mile/intro/splash_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import 'package:get/get.dart';
+import 'package:sound_mile/intro/splash_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/pref_data.dart';
-import 'package:get/get.dart';
 import 'controllers/player_controller.dart';
 
 Future<void> main() async {
@@ -39,26 +41,32 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) {
-  if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
-    if (playerController.playingSong.value != null) {
-      playerController.saveLastPlayedSong(playerController.playingSong.value!);
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      if (playerController.playingSong.value != null) {
+        playerController.saveLastPlayedSong(playerController.playingSong.value!);
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
-        useMaterial3: true,
-      ),
-      home: const SplashScreen(),
+    return ScreenUtilInit(
+      designSize: const Size(375, 812), // Standard design size
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
+            useMaterial3: true,
+          ),
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }

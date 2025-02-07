@@ -50,7 +50,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Color.fromARGB(255, 61, 37, 37),
-        
         body: Stack(
           children: [
             buildMusicImage(
@@ -61,10 +60,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 height: screenHeight,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      
-                      colors: [bgDark.withOpacity(0.95),Color.fromARGB(255, 61, 37, 37)]),
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [bgDark.withOpacity(0.95), bg],
+                  ),
                   // color: bgDark.withOpacity(0.9),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(22.r),

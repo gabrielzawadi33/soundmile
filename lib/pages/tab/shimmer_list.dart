@@ -23,7 +23,7 @@ class ShimmerListTile extends StatelessWidget {
         children: [
           Container(
             height: 76.h,
-            width: 76.h,
+            width: 76.w,
             decoration: BoxDecoration(
               color: Colors.grey,
               borderRadius: BorderRadius.circular(22.h),
@@ -42,7 +42,7 @@ class ShimmerListTile extends StatelessWidget {
                 getVerSpace(6.h),
                 Container(
                   height: 12.h,
-                  width: 150.h,
+                  width: 150.w,
                   color: Colors.grey,
                 ),
               ],
@@ -50,7 +50,7 @@ class ShimmerListTile extends StatelessWidget {
           ),
           Container(
             height: 34.h,
-            width: 34.h,
+            width: 34.w,
             color: Colors.grey,
           ),
         ],

@@ -87,7 +87,7 @@ class _AllRecentMusicPageState extends State<AllRecentMusicPage> {
                               color: secondaryColor,
                             ),
                             height: 187.h,
-                            width: 120.h,
+                            width: 120.w,
                             child: buildRecentImage(context, recentSong.id)
                           ),
                           Positioned(
@@ -98,7 +98,7 @@ class _AllRecentMusicPageState extends State<AllRecentMusicPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   SizedBox(
-                                    width: 100,
+                                    width: 100.w,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,

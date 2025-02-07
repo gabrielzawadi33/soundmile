@@ -81,7 +81,7 @@ class _AllMusicPageState extends State<AllMusicPage> {
                           children: [
                             Container(
                               height: 60.h,
-                              width: 60.h,
+                              width: 60.w,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(22.h),
                               ),
@@ -95,7 +95,7 @@ class _AllMusicPageState extends State<AllMusicPage> {
                                     'assets/images/headphones.png', // Path to your asset imageA
                                     fit: BoxFit.cover,
                                     height: 60.h,
-                                    width: 60.h,
+                                    width: 60.w,
                                   ),
                                 ),
                               ),
