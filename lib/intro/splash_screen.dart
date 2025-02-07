@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:sound_mile/pages/home_screen.dart';
-import 'package:sound_mile/permission_screen.dart';
+import 'package:sound_mile/intro/permission_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/constant_widget.dart';
 import 'package:sound_mile/util/pref_data.dart';
 
-import 'controllers/home_conroller.dart';
-import 'controllers/player_controller.dart';
+import '../controllers/home_conroller.dart';
+import '../controllers/player_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -29,14 +28,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void getIsFirst() async {
     homeController.getIsShowPlayingData();
-    await Future.delayed(const Duration(seconds: 1));
     isPermitted = (await PrefData.getIsPermitted())!;
+    await Future.delayed(const Duration(milliseconds: 50));
+    
 
     // ignore: unnecessary_null_comparison
     if (!isPermitted || isPermitted == null) {
       Get.to(const PermissionPage());
     } else {
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 50));
       await PlayerController().fetchSongs();
       Get.to(HomeScreen());
     }

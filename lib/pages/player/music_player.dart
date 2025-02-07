@@ -27,195 +27,9 @@ class _MusicPlayerState extends State<MusicPlayer> {
     super.initState();
   }
 
-  // late int currentIndex;
-  // bool isThirtySecondsReached = false;
-  //
-  // late List<String> existingPlaylists;
-
-  // fetchPlaylists() async {
-  //   final dbHelper = PlaylistHelper();
-  //   existingPlaylists = await dbHelper.getPlaylists();
-  //   setState(() {});
-  // }
-
-  // void _showPlaylistDialog(BuildContext context, int songId) {
-  //   final TextEditingController playlistNameController =
-  //       TextEditingController();
-
-  //   void addToExistingPlaylist(
-  //       BuildContext context, String playlist, int songId) async {
-  //     final dbHelper = PlaylistHelper();
-  //     int? playlistId = await dbHelper.getPlaylistIdByName(playlist);
-
-  //     if (playlistId != null) {
-  //       await dbHelper.addSongToPlaylist(playlistId, songId);
-  //       Navigator.of(context).pop(); // Close the dialog
-  //       // ignore: use_build_context_synchronously
-  //       showToast("Added $songId to $playlist", context);
-  //     } else {
-  //       showToast("Playlist not found", context);
-  //     }
-  //   }
-
-  // void createNewPlaylist(
-  //     BuildContext context, String playlistName, int songId) async {
-  //   final dbHelper = PlaylistHelper();
-  //   int playlistId = await dbHelper.createPlaylist(playlistName);
-  //   await dbHelper.addSongToPlaylist(playlistId, songId);
-  //   Navigator.of(context).pop(); // Close the dialog
-  //   showToast("New playlist '$playlistName' created and song added", context);
-  // }
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         backgroundColor: containerBg,
-  //         title: Text(
-  //           "Add to Playlist",
-  //           style: TextStyle(color: accentColor),
-  //           textAlign: TextAlign.center,
-  //         ),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Text(
-  //               "Select an existing playlist or create a new one:",
-  //               style: TextStyle(fontSize: 10.sp, color: Colors.white),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             SizedBox(height: 10.h),
-  //             // Existing playlists dropdown
-  //             DropdownButtonFormField<String>(
-  //               decoration: InputDecoration(
-  //                 border: OutlineInputBorder(
-  //                   borderRadius: BorderRadius.circular(8.h),
-  //                 ),
-  //                 labelText: "Existing Playlists",
-  //               ),
-  //               dropdownColor:
-  //                   Colors.white, // Set the dropdown background color
-  //               style: TextStyle(
-  //                 color: Colors.black, // Set the text color
-  //                 fontSize: 16.sp, // Set the text size
-  //               ),
-  //               items: existingPlaylists
-  //                   .map((playlist) => DropdownMenuItem(
-  //                         value: playlist,
-  //                         child: Text(playlist),
-  //                       ))
-  //                   .toList(),
-  //               onChanged: (selectedPlaylist) {
-  //                 if (selectedPlaylist != null) {
-  //                   addToExistingPlaylist(context, selectedPlaylist, songId);
-  //                 }
-  //               },
-  //               icon: Icon(
-  //                 Icons.arrow_drop_down,
-  //                 color: Colors.white, // Set the icon color
-  //               ),
-  //               isExpanded: true, // Make the dropdown take the full width
-  //             ),
-  //             SizedBox(height: 10.h),
-  //             const Divider(),
-  //             SizedBox(height: 10.h),
-  //             // Create a new playlist
-  //             TextField(
-  //               controller: playlistNameController,
-  //               decoration: InputDecoration(
-  //                 labelText: "New Playlist Name",
-  //                 border: OutlineInputBorder(
-  //                   borderRadius: BorderRadius.circular(8.h),
-  //                 ),
-  //               ),
-  //               style: TextStyle(
-  //                 color: Colors.white, // Set the text color to white
-  //               ),
-  //             )
-  //           ],
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // Close the dialog
-  //             },
-  //             child: Text("Cancel"),
-  //           ),
-  //           ElevatedButton(
-  //             style: ButtonStyle(
-  //               backgroundColor: MaterialStateProperty.all(
-  //                   accentColor), // Use MaterialStateProperty.all
-  //             ),
-  //             onPressed: () {
-  //               if (playlistNameController.text.isNotEmpty) {
-  //                 createNewPlaylist(
-  //                     context, playlistNameController.text, songId);
-  //               } else {
-  //                 showToast("Please enter a playlist name", context);
-  //               }
-  //             },
-  //             child: const Text(
-  //               "Create Playlist",
-  //               style: TextStyle(color: Colors.white),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   fetchPlaylists();
-  //   currentIndex = widget.currentIndex;
-  //   shuffledSongs = List.from(widget.songs); // Initialize shuffledSongs
-
-  //   // Check if a song is already playing
-  //   if (audioController.playingSong.value != null &&
-  //       audioController.audioPlayer.playing) {
-  //     // If the same song is already playing, resume it
-  //     if (audioController.playingSong.value!.id ==
-  //         widget.songs[currentIndex].id) {
-  //       isThirtySecondsReached =
-  //           audioController.audioPlayer.position.inSeconds >= 30;
-  //     } else {
-  //       // If a different song, prepare the new one
-  //       _prepareNetworkAudio();
-  //     }
-  //   } else {
-  //     // No song is playing, start fresh
-  //     _prepareNetworkAudio();
-  //   }
-
-  //   audioController.audioPlayer.positionStream.listen((position) {
-  //     if (!isThirtySecondsReached && position.inSeconds >= 30) {
-  //       audioController.icrementPlayCount(widget.songs[currentIndex].id!);
-  //       isThirtySecondsReached = true;
-  //     }
-  //   });
-
-  //   audioController.audioPlayer.playerStateStream.listen((state) {
-  //     if (state.processingState == ProcessingState.completed) {
-  //       playNextSong();
-  //     }
-  //   });
-  // }
-
-  // Future<void> _prepareNetworkAudio() async {
-  //   if (widget.songs.isNotEmpty) {
-  //     await audioController.audioPlayer
-  //         .setUrl(widget.songs[currentIndex].audioPath!);
-  //     isThirtySecondsReached = false; // Reset for each new song
-  //   }
-  // }
-
   @override
   void dispose() {
     super.dispose();
-    // You can comment out the following line to prevent disposal.
-    // audioController.audioPlayer.dispose();
   }
 
   void backClick() {
@@ -224,12 +38,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // setState(() {
-    //   playerController.currentIndex.value = widget.index;
-    // });
-
-    setStatusBarColor(bgDark);
-    Constant.setupSize(context);
+    final mediaQueryData = MediaQuery.of(context);
+    final screenWidth = mediaQueryData.size.width;
+    final screenHeight = mediaQueryData.size.height;
+    final orientation = mediaQueryData.orientation;
     return WillPopScope(
       onWillPop: () async {
         backClick();
@@ -237,28 +49,35 @@ class _MusicPlayerState extends State<MusicPlayer> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: bgDark,
+        backgroundColor: Color.fromARGB(255, 61, 37, 37),
+        
         body: Stack(
           children: [
             buildMusicImage(
               context,
               0.0,
-              boxFit: BoxFit.fitHeight, // Example BoxFit
             ),
             Container(
+                height: screenHeight,
                 decoration: BoxDecoration(
-                  color: bgDark.withOpacity(0.9),
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      
+                      colors: [bgDark.withOpacity(0.95),Color.fromARGB(255, 61, 37, 37)]),
+                  // color: bgDark.withOpacity(0.9),
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(22.h),
-                    topRight: Radius.circular(22.h),
+                    topLeft: Radius.circular(22.r),
+                    topRight: Radius.circular(22.r),
                   ),
                 ),
                 child: Column(
                   children: [
                     Container(
+                      // color: Color.fromARGB(255, 61, 37, 37),
                       child: Column(
                         children: [
-                          getVerSpace(50.h),
+                          getVerSpace(40.h),
                           Align(
                             alignment: Alignment.topLeft,
                             child: IconButton(
@@ -266,53 +85,26 @@ class _MusicPlayerState extends State<MusicPlayer> {
                                 backClick();
                               },
                               icon: Icon(
-                                CupertinoIcons.arrow_left,
-                                size: 30.h,
+                                Icons.keyboard_arrow_down_outlined,
+                                size: 40.h,
                                 color: textColor,
                               ),
                             ),
                           ),
-                          Obx(() {
-                            return Column(
-                              children: [
-                                Text(
-                                    playerController
-                                            .playingSong.value?.title ??
-                                        '',
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: textColor,
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.w700,
-                                    )),
-                              ],
-                            ).paddingSymmetric(horizontal: 20);
-                          }),
-                          getVerSpace(30.h),
+                          getVerSpace(20.h),
                         ],
                       ),
                     ),
-
-                    // Obx(() {
-                    //   return getAppBar(() {
-                    //     backClick();
-                    //   },
-                    //       playerController
-                    //               .playbackState.value.playingSong?.title ??
-                    //           '');
-                    // }),
-                    // getVerSpace(10.h),
                     Expanded(
                       child: ListView(
-                        padding: EdgeInsets.symmetric(horizontal: 20.h),
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
                         primary: true,
                         shrinkWrap: false,
                         children: [
                           buildMusicPoster(),
                           getVerSpace(20.h),
                           buildMusicDetail(),
-                          getVerSpace(30.h),
+                          getVerSpace(20.h),
                           buildPlaybackControls(),
                           getVerSpace(30.h),
                           // buildPlaylistSection(),
@@ -337,10 +129,10 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Widget buildPlaybackControls() {
     return Container(
       decoration: BoxDecoration(
-        color: accentColor,
-        borderRadius: BorderRadius.circular(22.h),
+        // color: accentColor,
+        borderRadius: BorderRadius.circular(10.r),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 20.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 20.h),
       child: Column(
         children: [
           Row(
@@ -427,7 +219,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
                     icon: Icon(
                       playerController.isPlaying.value
                           ? CupertinoIcons.pause_circle
-                          : CupertinoIcons.play_circle_fill,
+                          : CupertinoIcons.play_circle,
                       size: 72.h,
                       color: textColor,
                     ),
@@ -465,13 +257,13 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 );
               }),
               IconButton(
-                icon: Icon(Icons.replay_5, color: textColor),
+                icon: Icon(Icons.replay_10, color: textColor),
                 onPressed: () {
                   final currentPosition = playerController.audioPlayer.position;
-                  if (currentPosition - Duration(seconds: 5) > Duration.zero) {
+                  if (currentPosition - Duration(seconds: 10) > Duration.zero) {
                     playerController.audioPlayer
                         .seek(currentPosition - Duration(seconds: 5));
-                    showToast("Back 5 seconds", context);
+                    showToast("Back 10 seconds", context);
                   } else {
                     playerController.audioPlayer.seek(Duration.zero);
                     showToast("Reached start of song", context);
@@ -479,15 +271,15 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 },
               ),
               IconButton(
-                icon: Icon(Icons.forward_5, color: textColor),
+                icon: Icon(Icons.forward_10, color: textColor),
                 onPressed: () {
                   final currentPosition = playerController.audioPlayer.position;
                   final duration = playerController.audioPlayer.duration;
-                  if (currentPosition + Duration(seconds: 5) < duration!) {
+                  if (currentPosition + Duration(seconds: 10) < duration!) {
                     playerController.audioPlayer
-                        .seek(currentPosition + Duration(seconds: 5));
+                        .seek(currentPosition + Duration(seconds: 10));
                     showToast(
-                      "Forward 5 seconds",
+                      "Forward 10ss seconds",
                       context,
                     );
                   } else {
@@ -522,21 +314,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
   Widget buildPlaylistSection() {
     return Column(
       children: [
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // getCustomFont('  ${widget.songs.length.toString()}  Songs', 15.sp,
-            //     "#F9F9F9".toColor(), 1,
-            //     fontWeight: FontWeight.w700),
-            //   GestureDetector(
-            //     onTap: () {
-            //       // Constant.sendToNext(context, Routes.playListRoute);
-            //     },
-            //     child: getCustomFont("View All", 12.sp, accentColor, 1,
-            //         fontWeight: FontWeight.w700),
-            //   )
-          ],
-        ),
         getVerSpace(20.h),
         // buildSongsList(),
         getVerSpace(40.h),
@@ -611,11 +388,8 @@ class _MusicPlayerState extends State<MusicPlayer> {
     return Column(
       children: [
         Obx(() {
-          return getCustomFont(
-              playerController.playingSong.value?.title ?? '',
-              18.sp,
-              textColor,
-              1,
+          return getCustomFont(playerController.playingSong.value?.title ?? '',
+              15.sp, textColor, 1,
               fontWeight: FontWeight.w700);
         }),
         getVerSpace(2.h),
@@ -633,24 +407,6 @@ class _MusicPlayerState extends State<MusicPlayer> {
   }
 
   Widget buildMusicPoster() {
-    return Container(
-        height: 300.h,
-        decoration: BoxDecoration(
-            // borderRadius: BorderRadius.circular(2.h),
-            ),
-        child: buildMusicImage(
-          context,
-          20.0, // Example border radius
-          boxFit: BoxFit.fitWidth, // Example BoxFit
-        ));
-
-    // Widget buildPlayListButton(BuildContext context, int songId) {
-    //   return getButton(context, accentColor, "Add To Playlist", Colors.black, () {
-    //     _showPlaylistDialog(context, songId);
-    //   }, 18.sp,
-    //       weight: FontWeight.w700,
-    //       buttonHeight: 60.h,
-    //       borderRadius: BorderRadius.circular(12.h));
-    // }
+    return SizedBox(height: 400.h, child: buildMusicImage(context, 20));
   }
 }

@@ -88,12 +88,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Obx(
       () {
         return SizedBox(
-          height: (homeController.isShowPlayingSong.value) ? 60.h : 0.h,
+          height: (homeController.isShowPlayingSong.value) ? 61.h : 0.h,
           child: Stack(
             children: [
               if (homeController.isShowPlayingSong.value)
                 Positioned(
-                  top: 0.h,
+                top: 0,
                   left: 0,
                   right: 0,
                   child: GestureDetector(
@@ -101,135 +101,154 @@ class _HomeScreenState extends State<HomeScreen> {
                       Get.to(
                         MusicPlayer(),
                         transition: Transition.downToUp,
-                        duration: const Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 200),
                         curve: Curves.easeInOut,
                       );
                     },
                     child: Card(
                       margin: const EdgeInsets.symmetric(horizontal: 10),
-                      // padding: EdgeInsets.all(6.h),
-                      // margin: EdgeInsets.only(bottom: 10.h),
-                      // decoration: BoxDecoration(
-                      //   color: accentColor.withOpacity(0.75),
-                      //   // borderRadius: BorderRadius.circular(22.h),
-                      // ),
-
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        side: BorderSide(
+                          color: secondaryColor,
+                          width: 0.3,
+                        ),
+                      ),
                       color: accentColor,
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          getHorSpace(12.h),
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5),
-                            height: 50.h,
-                            width: 50.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(11.h),
-                            ),
-                            child: QueryArtworkWidget(
-                              artworkBorder: BorderRadius.circular(22.h),
-                              id: playerController.playingSong.value?.id ?? 0,
-                              type: ArtworkType.AUDIO,
-                              nullArtworkWidget: ClipRRect(
-                                borderRadius: BorderRadius.circular(22.h),
-                                child: Image.asset(
-                                  'assets/images/headphones.png', // Path to your asset imageA
-                                  fit: BoxFit.cover,
-                                  height: 60.h,
-                                  width: 60.h,
-                                ),
-                              ),
-                            ),
-                          ),
-                          getHorSpace(12.h),
-                          Expanded(
-                            child: Dismissible(
-                              key: UniqueKey(),
-                              direction: DismissDirection.horizontal,
-                              onDismissed: (direction) {
-                                if (direction ==
-                                    DismissDirection.endToStart) {
-                                  playerController.playNextSong();
-                                } else if (direction ==
-                                    DismissDirection.startToEnd) {
-                                  playerController.playPreviousSong();
-                                }
-                              },
-                              background: Container(
-                                alignment: Alignment.centerLeft,
-                                // color: Colors.green,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 16.0),
-                                  child: Icon(Icons.arrow_back,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              secondaryBackground: Container(
-                                alignment: Alignment.centerRight,
-                                // color: Colors.red,
-                                
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 16.0),
-                                  child: Icon(Icons.arrow_forward,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  getCustomFont(
-                                    playerController
-                                            .playingSong.value?.title ??
-                                        '',
-                                    10.sp,
-                                    Colors.white,
-                                    1,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  getVerSpace(6.h),
-                                  getCustomFont(
-                                    "${playerController.playingSong.value?.artist ?? ''}  ",
-                                    8.sp,
-                                    searchHint,
-                                    1,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          getHorSpace(12.h),
-                          // SizedBox(width: 20.h),
+                          Dismissible(
+                            key: UniqueKey(),
+                            direction: DismissDirection.horizontal,
+                            confirmDismiss: (direction) async {
+                              bool isNext =
+                                  direction == DismissDirection.endToStart;
+                              bool noNext =
+                                  !playerController.audioPlayer.hasNext &&
+                                      playerController.loopMode.value ==
+                                          LoopMode.one;
+                              bool noPrevious =
+                                  !playerController.audioPlayer.hasPrevious;
 
-                          Obx(() => IconButton(
-                                icon: Icon(
-                                  AudioPlayer().playing
-                                      ? CupertinoIcons.pause
-                                      : CupertinoIcons.play_arrow,
-                                  // size: 72.h,
+                              if ((isNext && noNext) ||
+                                  (!isNext && noPrevious)) {
+                                showToast('Repeat', context);
+                                playerController.audioPlayer
+                                    .seek(Duration.zero);
+                                playerController.audioPlayer.play();
+                                return false;
+                              }
+
+                              isNext
+                                  ? playerController.playNextSong()
+                                  : playerController.playPreviousSong();
+                            },
+                            background: Container(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Icon(
+                                  (playerController.audioPlayer.hasNext &&
+                                          playerController.loopMode.value !=
+                                              LoopMode.one)
+                                      ? Icons.arrow_back
+                                      : Icons.loop,
                                   color: Colors.white,
                                 ),
-                                onPressed: () async {
-                                  playerController.togglePlayPause();
-                                },
-                              )),
-                          if (!AudioPlayer().playing) ...[
-                            IconButton(
-                                onPressed: () {
-                                  homeController.setIsShowPlayingData(false);
-                                },
-                                // ignore: prefer_const_constructors
-                                icon: Icon(CupertinoIcons.clear,
-                                    color: Colors.white, size: 18)),
-                          ],
-
-                          getHorSpace(5.h),
+                              ),
+                            ),
+                            secondaryBackground: Container(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: Icon(
+                                  (playerController.audioPlayer.hasNext &&
+                                          playerController.loopMode.value !=
+                                              LoopMode.one)
+                                      ? Icons.arrow_forward
+                                      : Icons.loop,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                getHorSpace(12.h),
+                                Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  height: 50.h,
+                                  width: 50.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(11.h),
+                                  ),
+                                  child: QueryArtworkWidget(
+                                    artworkBorder: BorderRadius.circular(22.h),
+                                    id: playerController
+                                            .playingSong.value?.id ??
+                                        0,
+                                    type: ArtworkType.AUDIO,
+                                    nullArtworkWidget: ClipRRect(
+                                      borderRadius: BorderRadius.circular(22.h),
+                                      child: Image.asset(
+                                        'assets/images/headphones.png',
+                                        fit: BoxFit.cover,
+                                        height: 60.h,
+                                        width: 60.h,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                getHorSpace(12.h),
+                                SizedBox(
+                                  width: 270,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      getCustomFont(
+                                        playerController
+                                                .playingSong.value?.title ??
+                                            '',
+                                        10.sp,
+                                        Colors.white,
+                                        1,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      getVerSpace(6.h),
+                                      getCustomFont(
+                                        "${playerController.playingSong.value?.artist ?? ''}  ",
+                                        8.sp,
+                                        searchHint,
+                                        1,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Obx(
+                            () => IconButton(
+                              icon: Icon(
+                                (playerController.isPlaying.value)
+                                    ? CupertinoIcons.pause_circle
+                                    : CupertinoIcons.play_circle,
+                                color: Colors.white,
+                              ),
+                              onPressed: () async {
+                                playerController.togglePlayPause();
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-
+              // getHorSpace(5.h),
               //   //Bottom Tab BAr
               // Positioned(
               //   bottom: 0.h,

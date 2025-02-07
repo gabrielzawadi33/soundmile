@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:sound_mile/model/extended_song_model.dart';
 
 import '../controllers/home_conroller.dart';
 import '../controllers/player_controller.dart';
@@ -26,7 +27,8 @@ showToast(String s, BuildContext context) {
         msg: s,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
+        // timeInSecForIosWeb: 1,
+
         backgroundColor: secondaryColor,
         textColor: textColor,
         fontSize: 12);
@@ -81,62 +83,87 @@ Widget buildRecentImage(BuildContext context, int id) {
   );
 }
 
-Widget buildMusicImage(BuildContext context, double? borderRadius,
-    {BoxFit? boxFit = BoxFit.fill}) {
+Widget buildMusicImage(BuildContext context, double? borderRadius) {
   PlayerController playerController = Get.put(PlayerController());
-  return Obx(
-    () {
-      return FutureBuilder<Uint8List?>(
-        future: getArtwork(playerController.playingSong.value?.id),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasData && snapshot.data != null) {
-            return ClipRRect(
-              borderRadius: borderRadius != null
-                  ? BorderRadius.circular(borderRadius)
-                  : BorderRadius.zero,
-              child: Image.memory(
-                snapshot.data!,
-                fit: boxFit,
-                height: double.infinity,
-                width: double.infinity,
-              ),
-            );
-          } else {
-            return ClipRRect(
-              borderRadius: borderRadius != null
-                  ? BorderRadius.circular(borderRadius)
-                  : BorderRadius.zero,
-              child: Image.asset(
-                'assets/images/headphones.png', // Path to your asset image
 
-                height: double.infinity,
-                width: double.infinity,
-              ),
-            );
-          }
-        },
+  return Obx(() {
+    return FutureBuilder<Uint8List?>(
+      future: getArtwork(playerController.playingSong.value?.id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasData && snapshot.data != null) {
+          return _buildDynamicImage(snapshot.data!, borderRadius);
+        } else {
+          return _buildPlaceholderImage(borderRadius);
+        }
+      },
+    );
+  });
+}
+
+Widget _buildDynamicImage(Uint8List imageData, double? borderRadius) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10.h),
+        child: Image.memory(
+          imageData,
+          fit: _getBoxFit(
+              imageData, constraints.maxWidth, constraints.maxHeight),
+          height: double.infinity,
+          width: double.infinity, 
+        ),
       );
     },
   );
+}
+
+Widget _buildPlaceholderImage(double? borderRadius) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(borderRadius ?? 0),
+    child: Image.asset(
+      'assets/images/headphones.png',
+      fit: BoxFit.contain,
+      height: double.infinity,
+      width: double.infinity,
+    ),
+  );
+}
+
+BoxFit _getBoxFit(Uint8List imageData, double maxWidth, double maxHeight) {
+  final image = Image.memory(imageData);
+
+  BoxFit fit = BoxFit.cover; // Default BoxFit
+
+  final Completer<BoxFit> completer = Completer<BoxFit>();
+
+  image.image.resolve(const ImageConfiguration()).addListener(
+    ImageStreamListener((ImageInfo info, bool _) {
+      double aspectRatio = info.image.width / info.image.height;
+
+      if (aspectRatio > maxWidth / maxHeight) {
+        fit = BoxFit.fitWidth;
+      } else {
+        fit = BoxFit.fitHeight;
+      }
+      completer.complete(fit);
+    }),
+  );
+
+  return fit;
 }
 
 buildBottomMusicBar() {
   return Obx(
     () {
       return SizedBox(
-        height: (homeController.isShowPlayingSong.value &&
-                playerController.playingSong != null)
-            ? 60.h
-            : 0.h,
+        height: (homeController.isShowPlayingSong.value) ? 61.h : 0.h,
         child: Stack(
           children: [
-            if (homeController.isShowPlayingSong.value &&
-                playerController.playingSong !=
-                    null) 
+            if (homeController.isShowPlayingSong.value)
               Positioned(
-                top: 0.h,
+                top: 0,
                 left: 0,
                 right: 0,
                 child: GestureDetector(
@@ -144,120 +171,141 @@ buildBottomMusicBar() {
                     Get.to(
                       MusicPlayer(),
                       transition: Transition.downToUp,
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                     );
                   },
                   child: Card(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(
+                        color: secondaryColor,
+                        width: 0.3,
+                      ),
+                    ),
                     color: accentColor,
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        getHorSpace(12.h),
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          height: 50.h,
-                          width: 50.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(11.h),
-                          ),
-                          child: QueryArtworkWidget(
-                            artworkBorder: BorderRadius.circular(22.h),
-                            id: playerController.playingSong.value?.id ?? 0,
-                            type: ArtworkType.AUDIO,
-                            nullArtworkWidget: ClipRRect(
-                              borderRadius: BorderRadius.circular(22.h),
-                              child: Image.asset(
-                                'assets/images/headphones.png', // Path to your asset imageA
-                                fit: BoxFit.cover,
-                                height: 60.h,
-                                width: 60.h,
-                              ),
-                            ),
-                          ),
-                        ),
-                        getHorSpace(12.h),
-                        Expanded(
-                          child: Dismissible(
-                            key: UniqueKey(),
-                            direction: DismissDirection.horizontal,
-                            onDismissed: (direction) {
-                              if (direction == DismissDirection.endToStart) {
-                                playerController.playNextSong();
-                              } else if (direction ==
-                                  DismissDirection.startToEnd) {
-                                playerController.playPreviousSong();
-                              }
-                            },
-                            background: Container(
-                              alignment: Alignment.centerLeft,
-                              // color: Colors.green,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 16.0),
-                                child:
-                                    Icon(Icons.arrow_back, color: Colors.white),
-                              ),
-                            ),
-                            secondaryBackground: Container(
-                              alignment: Alignment.centerRight,
-                              // color: Colors.red,
+                        Dismissible(
+                          key: UniqueKey(),
+                          direction: DismissDirection.horizontal,
+                          confirmDismiss: (direction) async {
+                            bool isNext =
+                                direction == DismissDirection.endToStart;
+                            bool noNext = !playerController
+                                    .audioPlayer.hasNext &&
+                                playerController.loopMode.value == LoopMode.one;
+                            bool noPrevious =
+                                !playerController.audioPlayer.hasPrevious;
 
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 16.0),
-                                child: Icon(Icons.arrow_forward,
-                                    color: Colors.white),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                getCustomFont(
-                                  playerController.playingSong.value?.title ??
-                                      '',
-                                  10.sp,
-                                  Colors.white,
-                                  1,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                getVerSpace(6.h),
-                                getCustomFont(
-                                  "${playerController.playingSong.value?.artist ?? ''}  ",
-                                  8.sp,
-                                  searchHint,
-                                  1,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        getHorSpace(12.h),
-                        // SizedBox(width: 20.h),
+                            if ((isNext && noNext) || (!isNext && noPrevious)) {
+                              playerController.audioPlayer.seek(Duration.zero);
+                              playerController.audioPlayer.play();
+                              return false;
+                            }
 
-                        Obx(() => IconButton(
-                              icon: Icon(
-                                AudioPlayer().playing
-                                    ? CupertinoIcons.pause
-                                    : CupertinoIcons.play_arrow,
-                                // size: 72.h,
+                            isNext
+                                ? playerController.playNextSong()
+                                : playerController.playPreviousSong();
+                          },
+                          background: Container(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: Icon(
+                                (playerController.audioPlayer.hasNext &&
+                                        playerController.loopMode.value !=
+                                            LoopMode.one)
+                                    ? Icons.arrow_back
+                                    : Icons.loop,
                                 color: Colors.white,
                               ),
-                              onPressed: () async {
-                                playerController.togglePlayPause();
-                              },
-                            )),
-                        if (!AudioPlayer().playing) ...[
-                          IconButton(
-                              onPressed: () {
-                                homeController.setIsShowPlayingData(false);
-                              },
-                              // ignore: prefer_const_constructors
-                              icon: Icon(CupertinoIcons.clear,
-                                  color: Colors.white, size: 18)),
-                        ],
-
-                        getHorSpace(5.h),
+                            ),
+                          ),
+                          secondaryBackground: Container(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 16.0),
+                              child: Icon(
+                                (playerController.audioPlayer.hasNext &&
+                                        playerController.loopMode.value !=
+                                            LoopMode.one)
+                                    ? Icons.arrow_forward
+                                    : Icons.loop,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              getHorSpace(12.h),
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                                height: 50.h,
+                                width: 50.h,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(11.h),
+                                ),
+                                child: QueryArtworkWidget(
+                                  artworkBorder: BorderRadius.circular(22.h),
+                                  id: playerController.playingSong.value?.id ??
+                                      0,
+                                  type: ArtworkType.AUDIO,
+                                  nullArtworkWidget: ClipRRect(
+                                    borderRadius: BorderRadius.circular(22.h),
+                                    child: Image.asset(
+                                      'assets/images/headphones.png',
+                                      fit: BoxFit.cover,
+                                      height: 60.h,
+                                      width: 60.h,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              getHorSpace(12.h),
+                              SizedBox(
+                                width: 270,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    getCustomFont(
+                                      playerController
+                                              .playingSong.value?.title ??
+                                          '',
+                                      10.sp,
+                                      Colors.white,
+                                      1,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    getVerSpace(6.h),
+                                    getCustomFont(
+                                      "${playerController.playingSong.value?.artist ?? ''}  ",
+                                      8.sp,
+                                      searchHint,
+                                      1,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Obx(
+                          () => IconButton(
+                            icon: Icon(
+                              (playerController.isPlaying.value)
+                                  ? CupertinoIcons.pause_circle
+                                  : CupertinoIcons.play_circle,
+                              color: Colors.white,
+                            ),
+                            onPressed: () async {
+                              playerController.togglePlayPause();
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ),

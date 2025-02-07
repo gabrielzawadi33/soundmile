@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../controllers/audio_controller.dart';
 import '../../controllers/player_controller.dart';
@@ -104,7 +103,7 @@ class _AllRecentMusicPageState extends State<AllRecentMusicPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        getCustomFont(recentSong.title!, 10.sp,
+                                        getCustomFont(recentSong.title, 10.sp,
                                             textColor, 1,
                                             fontWeight: FontWeight.w700),
                                         getVerSpace(1.h),

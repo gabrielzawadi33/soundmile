@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
-import 'package:sound_mile/splash_screen.dart';
+import 'package:sound_mile/intro/splash_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/constant_widget.dart';
 import 'package:sound_mile/util/pref_data.dart';

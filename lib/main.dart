@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio_background/just_audio_background.dart';
-import 'package:sound_mile/controllers/home_conroller.dart';
-import 'package:sound_mile/splash_screen.dart';
+import 'package:just_audio_background/just_audio_background.dart';import 'package:sound_mile/intro/splash_screen.dart';
 import 'package:sound_mile/util/color_category.dart';
 import 'package:sound_mile/util/pref_data.dart';
 import 'package:get/get.dart';

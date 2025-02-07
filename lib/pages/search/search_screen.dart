@@ -105,8 +105,9 @@ class _HomeState extends State<SearchScreen> {
                 ExtendedSongModel song = filteredSongs[index];
                 return GestureDetector(
                   onTap: () async {
-                    playerController.setPlaylistAndPlaySong(filteredSongs, index);
-
+                    List<ExtendedSongModel> searchedSong = [song];
+                    playerController.setPlaylistAndPlaySong(searchedSong, index);
+;
                     homeController.setIsShowPlayingData(true);
                     Get.to(() => MusicPlayer());
                   },

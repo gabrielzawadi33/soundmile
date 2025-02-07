@@ -1,12 +1,7 @@
-import 'package:audio_service/audio_service.dart';
+
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:on_audio_query/on_audio_query.dart';
-import 'package:sound_mile/util/constant_widget.dart';
-
-import '../controllers/home_conroller.dart';
-import '../controllers/player_controller.dart';
 import '../model/extended_song_model.dart';
 
 class PrefData {

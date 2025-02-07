@@ -245,25 +245,7 @@ class _TabHomeState extends State<TabHome> {
             if (playerController.allSongs.isEmpty) {
               return const Text('No Songs available');
             } else {
-              // return ListView.builder(
-              //   padding: EdgeInsets.symmetric(horizontal: 20.h),
-              //   primary: false,
-              //   shrinkWrap: true,
-              //   itemCount:
-              //       snapshot.data!.length > 40 ? 40 : snapshot.data!.length,
-              //   itemBuilder: (context, index) {
-              //     SongModel song = snapshot.data![index];
-
-              //     List<SongModel> songs = snapshot.data!;
-              //     playerController.songs.value = songs;
-              //     playerController.currentIndex.value = 0;
-              //     return GestureDetector(
-              //       onTap: () {
-              //         playerController.currentIndex.value = index;
-              //         Get.to(
-              //           () => MusicPlayer(songs: songs, index: index),
-              //         );
-              //       },
+              
               return ListView.builder(
                 padding: EdgeInsets.only(right: 20.h, left: 6.h),
                 shrinkWrap: true,
