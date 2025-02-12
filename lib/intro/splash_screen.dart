@@ -45,39 +45,41 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bgDark,
-      body: Center(
-        child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            SizedBox(
-              height: 300.h,
-            ),
-            ClipOval(
-              child: getAssetImage(
-                'mile.png',
-                 height: 100.h,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: bgDark,
+        body: Center(
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              SizedBox(
+                height: 300.h,
               ),
-            ),
-            SizedBox(
-              height: 280.h,
-            ),
-            
-           
-           
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(secondaryColor),
-            ),
-             SizedBox(
-              height: 10,
-            ),
-            getCustomFont('Loading Data...', 12, textColor, 1),
-
-            SizedBox(
-              height: 20,
-            ),
-          ],
+              ClipOval(
+                child: getAssetImage(
+                  'mile.png',
+                   height: 100.h,
+                ),
+              ),
+              SizedBox(
+                height: 280.h,
+              ),
+              
+             
+             
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(secondaryColor),
+              ),
+               SizedBox(
+                height: 10,
+              ),
+              getCustomFont('Loading Data...', 12, textColor, 1),
+      
+              SizedBox(
+                height: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );

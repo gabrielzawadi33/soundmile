@@ -43,6 +43,8 @@ class PlayerController extends GetxController {
 
     if (lastPlayedSong != null) {
       playingSong.value = lastPlayedSong;
+      songList.clear();
+      songList = [AudioSource.uri(Uri.parse(lastPlayedSong.uri!))];
 
       await audioPlayer.setAudioSource(
         AudioSource.uri(
@@ -199,11 +201,33 @@ class PlayerController extends GetxController {
   }
 
   Future<void> playNextSong() async {
-    await audioPlayer.seekToNext();
+    // if the Loop mode ==1
+    if (loopMode.value == LoopMode.one) {
+      if (audioPlayer.hasNext) {
+        // checking id there is a next song on the playlist
+        await audioPlayer.seek(Duration.zero,
+            index: (audioPlayer.currentIndex! + 1));
+      } else {
+        await audioPlayer.seek(Duration.zero, index: 0);
+      }
+    } else {
+      await audioPlayer.seekToNext();
+    }
   }
 
   Future<void> playPreviousSong() async {
-    await audioPlayer.seekToPrevious();
+    // if the Loop mode ==1
+    if (loopMode.value == LoopMode.one) {
+      if (audioPlayer.hasPrevious) {
+        // checking id there is a prev song on the playlist
+        await audioPlayer.seek(Duration.zero,
+            index: audioPlayer.currentIndex! - 1);
+      } else {
+        await audioPlayer.seek(Duration.zero, index: songList.length - 1);
+      }
+    } else {
+      await audioPlayer.seekToPrevious();
+    }
   }
 
   @override

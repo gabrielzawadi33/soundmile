@@ -66,15 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: GetBuilder<HomeController>(
         init: HomeController(),
-        builder: (controller) => Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: bgDark,
-          bottomNavigationBar:
-              buildBottomnavigation(controller, audioController),
-          body: SafeArea(
-            child: GetX<HomeController>(
-              init: HomeController(),
-              builder: (controller) => _widgetOptions[controller.index.value],
+        builder: (controller) => SafeArea(
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            backgroundColor: bgDark,
+            bottomNavigationBar:
+                buildBottomnavigation(controller, audioController),
+            body: SafeArea(
+              child: GetX<HomeController>(
+                init: HomeController(),
+                builder: (controller) => _widgetOptions[controller.index.value],
+              ),
             ),
           ),
         ),

@@ -210,7 +210,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 icon: Icon(CupertinoIcons.backward_end_fill,
                     color: textColor, size: 30.h),
                 onPressed: () {
-                  playerController.playPreviousSong();
+                  if (playerController.songList.length == 1) {
+                    showToast("No Previous Song to Play", context);
+                  } else {
+                    playerController.playPreviousSong();
+                  }
                 },
               ),
               getHorSpace(30.h),
@@ -231,7 +235,11 @@ class _MusicPlayerState extends State<MusicPlayer> {
                 icon: Icon(CupertinoIcons.forward_end_fill,
                     color: textColor, size: 30.h),
                 onPressed: () {
-                  playerController.playNextSong();
+                  if (playerController.songList.length == 1) {
+                    showToast("No Next Song to Play", context);
+                  } else {
+                    playerController.playNextSong();
+                  }
                 },
               ),
             ],
