@@ -32,9 +32,13 @@ class HomeController extends GetxController {
     update();
   }
 }
-
 class HomeScreenController extends GetxController {
   RxInt index = 0.obs;
+
+  void reset() {
+    index.value = 0;
+    update();
+  }
 
   void indexChange(RxInt value) {
     index.value = value.value;

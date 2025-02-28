@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:sound_mile/controllers/player_controller.dart';
+import 'package:sound_mile/util/activity.dart';
 import 'package:sound_mile/util/constant_widget.dart';
 import '../../util/color_category.dart';
 import '../../util/constant.dart';
@@ -39,9 +42,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
   @override
   Widget build(BuildContext context) {
     final mediaQueryData = MediaQuery.of(context);
-    final screenWidth = mediaQueryData.size.width;
     final screenHeight = mediaQueryData.size.height;
-    final orientation = mediaQueryData.orientation;
     return WillPopScope(
       onWillPop: () async {
         backClick();
@@ -113,6 +114,21 @@ class _MusicPlayerState extends State<MusicPlayer> {
                           //     style: TextStyle(color: textColor),
                           //   ),
                           // ),
+                           ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(
+                    accentColor), // Use MaterialStateProperty.all
+              ),
+              onPressed: () {
+                  createNewPlaylist(
+                      context, playlistNameController.text, PlayerController().playingSong.value?.id?? 0);
+              
+              },
+              child: const Text(
+                "Create Playlist",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
                         ],
                       ),
                     ),
@@ -330,66 +346,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
     );
   }
 
-  // ListView buildSongsList() {
-  //   return ListView.builder(
-  //     itemCount: 3,
-  //     primary: false,
-  //     shrinkWrap: true,
-  //     itemBuilder: (context, index) {
-  //       Song song = widget.songs[index];
-  //       return Container(
-  //         padding: EdgeInsets.all(12.h),
-  //         decoration: BoxDecoration(
-  //             color: containerBg, borderRadius: BorderRadius.circular(22.h)),
-  //         child: Row(
-  //           children: [
-  //             Expanded(
-  //               child: Row(
-  //                 children: [
-  //                   Container(
-  //                     height: 76.h,
-  //                     width: 76.h,
-  //                     decoration: BoxDecoration(
-  //                       borderRadius: BorderRadius.circular(22.h),
-  //                       image: DecorationImage(
-  //                           image: NetworkImage(song.photo!),
-  //                           fit: BoxFit.cover),
-  //                     ),
-  //                   ),
-  //                   // getAssetImage(widget.songs[index].artistName!,
-  //                   //     height: 56.h, width: 56.h),
-  //                   getHorSpace(12.h),
-  //                   Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       getCustomFont(song.title!, 16.sp, Colors.white, 1,
-  //                           fontWeight: FontWeight.w700),
-  //                       getVerSpace(6.h),
-  //                       getCustomFont("${widget.songs[index].artistName!} ",
-  //                           12.sp, searchHint, 1,
-  //                           fontWeight: FontWeight.w400)
-  //                     ],
-  //                   )
-  //                 ],
-  //               ),
-  //             ),
-  //             Row(
-  //               children: [
-  //                 Icon(
-  //                   Icons.favorite_border,
-  //                   color: Colors.white,
-  //                   size: 20.h,
-  //                 ),
-  //                 getHorSpace(11.h),
-  //                 getSvgImage("play_white.svg", height: 20.h, width: 20.h),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       ).marginOnly(bottom: 20.h);
-  //     },
-  //   );A
-  // }
+
 
   Column buildMusicDetail() {
     return Column(
@@ -403,7 +360,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
         Obx(
           () {
             return getMultilineCustomFont(
-                playerController.playingSong.value?.artist ?? '',
+                playerController.playingSong.value?.album ?? '',
                 12.sp,
                 hintColor,
                 fontWeight: FontWeight.w400);

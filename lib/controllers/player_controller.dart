@@ -41,27 +41,25 @@ class PlayerController extends GetxController {
   Future<void> loadLastPlayedSong() async {
     ExtendedSongModel? lastPlayedSong = await prefData.loadLastPlayedSong();
 
-    if (lastPlayedSong != null) {
-      playingSong.value = lastPlayedSong;
-      songList.clear();
-      songList = [AudioSource.uri(Uri.parse(lastPlayedSong.uri!))];
+    playingSong.value = lastPlayedSong;
+    songList.clear();
+    songList = [AudioSource.uri(Uri.parse(lastPlayedSong.uri!))];
 
-      await audioPlayer.setAudioSource(
-        AudioSource.uri(
-          Uri.parse(lastPlayedSong.uri!),
-          tag: MediaItem(
-            id: lastPlayedSong.id.toString(),
-            album: lastPlayedSong.album ?? "Unknown Album",
-            title: lastPlayedSong.displayNameWOExt,
-            artUri: lastPlayedSong.artworkUri,
-          ),
+    await audioPlayer.setAudioSource(
+      AudioSource.uri(
+        Uri.parse(lastPlayedSong.uri!),
+        tag: MediaItem(
+          id: lastPlayedSong.id.toString(),
+          album: lastPlayedSong.album ?? "Unknown Album",
+          title: lastPlayedSong.displayNameWOExt,
+          artUri: lastPlayedSong.artworkUri,
         ),
-      );
+      ),
+    );
 
-      currentIndex.value =
-          playList.indexWhere((song) => song.id == lastPlayedSong.id);
+    currentIndex.value =
+        playList.indexWhere((song) => song.id == lastPlayedSong.id);
     }
-  }
 
   void _initPlayerListener() {
     audioPlayer.currentIndexStream.listen((index) {

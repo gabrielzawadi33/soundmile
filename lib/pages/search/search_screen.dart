@@ -36,7 +36,8 @@ class _HomeState extends State<SearchScreen> {
   }
 
   void backClick() {
-    Constant.backToPrev(context);
+    final homeController = Get.find<HomeController>();
+    homeController.index.value = 0; // Navigates back to TabHome
   }
 
   @override
@@ -50,7 +51,7 @@ class _HomeState extends State<SearchScreen> {
     var suffiximage;
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: buildBottomMusicBar(),
+        // bottomNavigationBar: buildBottomMusicBar(),
         backgroundColor: bgDark,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -106,8 +107,9 @@ class _HomeState extends State<SearchScreen> {
                 return GestureDetector(
                   onTap: () async {
                     List<ExtendedSongModel> searchedSong = [song];
-                    playerController.setPlaylistAndPlaySong(searchedSong, index);
-;
+                    playerController.setPlaylistAndPlaySong(
+                        searchedSong, index);
+                    ;
                     homeController.setIsShowPlayingData(true);
                     Get.to(() => MusicPlayer());
                   },
